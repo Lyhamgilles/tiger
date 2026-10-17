@@ -78,14 +78,34 @@ impl Characters {
                     .and_then(|date| block.get_field_at_date("birth", date))
                     .is_some()
             {
-                err(ErrorKey::DuplicateCharacter)
-                    .strong()
-                    .msg("duplicate character id")
-                    .info("this will create two characters with the same id")
-                    .loc(&other.key)
-                    .loc_msg(&key, "duplicate")
-                    .push();
-                self.duplicates.push(Character::new(key, block));
+                // Definitions with a different `history_override_priority` override each other
+                let priority = |block: &Block| {
+                    block.get_field_integer("history_override_priority").unwrap_or(0)
+                };
+                let new_priority = priority(&block);
+                let other_priority = priority(&other.block);
+                match new_priority.cmp(&other_priority) {
+                    std::cmp::Ordering::Equal => {
+                        err(ErrorKey::DuplicateCharacter)
+                            .strong()
+                            .msg("duplicate character id")
+                            .info("this will create two characters with the same id")
+                            .loc(&other.key)
+                            .loc_msg(&key, "duplicate")
+                            .push();
+                        self.duplicates.push(Character::new(key, block));
+                    }
+                    std::cmp::Ordering::Greater => {
+                        // TODO: only the base attributes and birth date are overridden; the
+                        // history of the other definition is added to this one.
+                        if let Some(other) =
+                            self.characters.insert(key.as_str(), Character::new(key, block))
+                        {
+                            self.duplicates.push(other);
+                        }
+                    }
+                    std::cmp::Ordering::Less => self.duplicates.push(Character::new(key, block)),
+                }
             }
         } else {
             self.characters.insert(key.as_str(), Character::new(key, block));
@@ -369,6 +389,22 @@ impl Character {
                         data.verify_exists(Item::Faith, value);
                         return None;
                     }
+                    "rite" => {
+                        data.verify_exists(Item::RiteType, value);
+                        return None;
+                    }
+                    "ethnicity" => {
+                        data.verify_exists(Item::Ethnicity, value);
+                        return None;
+                    }
+                    "sexuality" => {
+                        data.verify_exists(Item::Sexuality, value);
+                        return None;
+                    }
+                    "health" | "fertility" => {
+                        value.expect_number();
+                        return None;
+                    }
                     "culture" => {
                         data.verify_exists(Item::Culture, value);
                         return None;
@@ -430,6 +466,10 @@ impl Character {
                         return None;
                     }
                     "remove_spouse" => return Some((RemoveSpouse, value.clone())),
+                    "remove_concubine" => {
+                        data.verify_exists(Item::Character, value);
+                        return None;
+                    }
                     "dynasty" => {
                         data.verify_exists(Item::Dynasty, value);
                         return None;
@@ -449,12 +489,29 @@ impl Character {
                     vd.field_item("killer", Item::Character);
                     return Some((Death, key.clone()));
                 }
-                "effect" => {
+                // effect_even_if_dead executes even if the character is dead at the start date
+                "effect" | "effect_even_if_dead" => {
                     validate_effect(block, data, sc, Tooltipped::No);
+                    return None;
+                }
+                "portrait_override" => {
+                    validate_portrait_override(block, data);
                     return None;
                 }
                 _ => (),
             },
+        }
+
+        if let Some(replacement) = match key.as_str() {
+            "set_house" => Some("dynasty_house"),
+            "set_culture" => Some("culture"),
+            "set_character_faith_no_effect" => Some("faith"),
+            _ => None,
+        } {
+            let msg = format!("`{key}` is an error in character history");
+            let info = format!("use `{replacement}` instead");
+            err(ErrorKey::History).msg(msg).info(info).loc(key).push();
+            return None;
         }
 
         // unknown effect field
@@ -591,29 +648,30 @@ impl Character {
         }
 
         vd.field_bool("disallow_random_traits");
+        if vd.field_bool("obscured") {
+            // optional flavor description shown instead of the character tooltip
+            let loca = format!("{}_obscured_desc", self.key);
+            data.mark_used(Item::Localization, &loca);
+        }
+        vd.field_integer("history_override_priority");
 
         // religion and faith both mean faith here
         vd.field_item("religion", Item::Faith);
         vd.field_item("faith", Item::Faith);
+        vd.field_item("rite", Item::RiteType);
 
         vd.field_item("culture", Item::Culture);
 
         vd.field_item("dynasty", Item::Dynasty);
         vd.field_item("dynasty_house", Item::House);
+        vd.field_item("ethnicity", Item::Ethnicity);
 
         vd.field_item("give_nickname", Item::Nickname);
         vd.field_item("sexuality", Item::Sexuality);
         vd.field_numeric("health");
         vd.field_numeric("fertility");
 
-        vd.field_validated_block("portrait_override", |block, data| {
-            let mut vd = Validator::new(block, data);
-            vd.field_validated_block(
-                "portrait_modifier_overrides",
-                validate_portrait_modifier_overrides,
-            );
-            vd.field_validated_block("hair", validate_color);
-        });
+        vd.field_validated_block("portrait_override", validate_portrait_override);
 
         let mut life_events = Vec::new();
         let gender = Gender::from_female_bool(self.block.get_field_bool("female").unwrap_or(false));
@@ -682,6 +740,12 @@ impl Character {
         }
         false
     }
+}
+
+fn validate_portrait_override(block: &Block, data: &Everything) {
+    let mut vd = Validator::new(block, data);
+    vd.field_validated_block("portrait_modifier_overrides", validate_portrait_modifier_overrides);
+    vd.field_validated_block("hair", validate_color);
 }
 
 fn block_has_flag(block: &Block, flag: &str) -> bool {
