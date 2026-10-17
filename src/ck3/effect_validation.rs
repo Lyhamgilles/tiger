@@ -2616,8 +2616,7 @@ pub fn validate_change_tenet_popularity(
     _tooltipped: Tooltipped,
 ) {
     vd.req_field("target");
-    // TODO: 1.20 field_item_or_target with Item::Tenet
-    vd.field_value("target");
+    vd.field_item_or_target("target", sc, Item::Tenet, Scopes::Tenet);
     vd.req_field("change");
     vd.field_script_value("change", sc);
 }
@@ -2731,8 +2730,7 @@ pub fn validate_create_rite_from_type(
     _tooltipped: Tooltipped,
 ) {
     vd.req_field("type");
-    // TODO: 1.20 field_item with Item::RiteType
-    vd.field_value("type");
+    vd.field_item_or_target("type", sc, Item::RiteType, Scopes::RiteType);
     if let Some(name) = vd.field_identifier("save_scope_as", "scope name") {
         sc.define_name_token(name.as_str(), Scopes::Rite, name, Temporary::No);
     }
@@ -2834,13 +2832,12 @@ pub fn validate_set_tenet_status(
     _key: &Token,
     _block: &Block,
     _data: &Everything,
-    _sc: &mut ScopeContext,
+    sc: &mut ScopeContext,
     mut vd: Validator,
     _tooltipped: Tooltipped,
 ) {
     vd.req_field("tenet");
-    // TODO: 1.20 field_item_or_target with Item::Tenet
-    vd.field_value("tenet");
+    vd.field_target("tenet", sc, Scopes::Tenet);
     vd.req_field("status");
     vd.field_choice("status", &["unknown", "known", "prohibited", "permitted", "core"]);
 }

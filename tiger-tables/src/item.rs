@@ -381,6 +381,7 @@ pub enum Item {
     #[cfg(feature = "ck3")] OpinionModifier,
     #[cfg(feature = "ck3")] Perk,
     #[cfg(feature = "ck3")] PerkTree,
+    #[cfg(feature = "ck3")] PersonalTenetParameter,
     #[cfg(feature = "ck3")] PlayableDifficultyInfo,
     #[cfg(feature = "ck3")] PointOfInterest,
     #[cfg(feature = "ck3")] PoolSelector,
@@ -394,6 +395,9 @@ pub enum Item {
     #[cfg(feature = "ck3")] RelationFlag,
     #[cfg(feature = "ck3")] ReligionFamily,
     #[cfg(feature = "ck3")] RewardItem,
+    #[cfg(feature = "ck3")] RiteIcon,
+    #[cfg(feature = "ck3")] RiteName,
+    #[cfg(feature = "ck3")] RiteType,
     #[cfg(feature = "ck3")] RulerObjectiveType,
     #[cfg(feature = "ck3")] Scheme,
     #[cfg(feature = "ck3")] SchemePulseAction,
@@ -431,6 +435,7 @@ pub enum Item {
     #[cfg(feature = "ck3")] TaskContractType,
     #[cfg(feature = "ck3")] TaxSlotObligation,
     #[cfg(feature = "ck3")] TaxSlotType,
+    #[cfg(feature = "ck3")] Tenet,
     #[cfg(feature = "ck3")] Title,
     #[cfg(feature = "ck3")] TitleHistory,
     #[cfg(feature = "ck3")] TraitCategory,
@@ -1543,6 +1548,8 @@ impl Item {
             #[cfg(feature = "ck3")]
             Item::PerkTree => "common/lifestyle_perks/",
             #[cfg(feature = "ck3")]
+            Item::PersonalTenetParameter => "common/religion/tenet_types/",
+            #[cfg(feature = "ck3")]
             Item::PlayableDifficultyInfo => "common/playable_difficulty_infos/",
             #[cfg(feature = "ck3")]
             Item::PointOfInterest => "common/travel/point_of_interest_types/",
@@ -1568,6 +1575,12 @@ impl Item {
             Item::ReligionFamily => "common/religion/religion_family_types/",
             #[cfg(feature = "ck3")]
             Item::RewardItem => "",
+            #[cfg(feature = "ck3")]
+            Item::RiteIcon => "common/religion/rite_icons/",
+            #[cfg(feature = "ck3")]
+            Item::RiteName => "common/religion/rite_names/",
+            #[cfg(feature = "ck3")]
+            Item::RiteType => "common/religion/rite_types/",
             #[cfg(feature = "ck3")]
             Item::RulerObjectiveType => "common/ruler_objective_advice_types/",
             #[cfg(feature = "ck3")]
@@ -1642,6 +1655,8 @@ impl Item {
             Item::TaxSlotObligation => "common/tax_slots/obligations",
             #[cfg(feature = "ck3")]
             Item::TaxSlotType => "common/tax_slots/types",
+            #[cfg(feature = "ck3")]
+            Item::Tenet => "common/religion/tenet_types/",
             #[cfg(feature = "ck3")]
             Item::Title => "common/landed_titles/",
             #[cfg(feature = "ck3")]

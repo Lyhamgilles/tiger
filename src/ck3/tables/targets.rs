@@ -444,11 +444,10 @@ const SCOPE_PREFIX: &[(Scopes, &str, Scopes, ArgumentValue)] = {
         // TODO: 1.20 Item::PuppetType once common/puppets/types is loaded
         (Scopes::Character, "puppet", Scopes::Character, UncheckedValue),
         (Scopes::None, "religion", Scopes::Religion, Item(Item::Religion)),
-        // TODO: 1.20 Item::RiteType once common/religion/rite_types is loaded.
-        // A faith without scripted rites gets a dynamic rite with the faith's key.
-        (Scopes::None, "rite", Scopes::Rite, UncheckedValue),
-        // TODO: 1.20 Item::RiteType once common/religion/rite_types is loaded
-        (Scopes::None, "rite_type", Scopes::RiteType, UncheckedValue),
+        // TODO: also accept faith keys: a faith without scripted rites gets a dynamic rite with
+        // the faith's key.
+        (Scopes::None, "rite", Scopes::Rite, Item(Item::RiteType)),
+        (Scopes::None, "rite_type", Scopes::RiteType, Item(Item::RiteType)),
         (Scopes::None, "scope", Scopes::all(), UncheckedValue),
         // TODO: "only available if the situation has is_unique = yes"
         (Scopes::None, "situation", Scopes::Situation, Item(Item::Situation)),
@@ -486,8 +485,7 @@ const SCOPE_PREFIX: &[(Scopes, &str, Scopes, ArgumentValue)] = {
             Item(Item::TaskContractType),
         ),
         (Scopes::Character, "tax_collector_aptitude", Scopes::Value, Item(Item::TaxSlotType)),
-        // TODO: 1.20 Item::Tenet once common/religion/tenet_types is loaded
-        (Scopes::None, "tenet", Scopes::Tenet, UncheckedValue),
+        (Scopes::None, "tenet", Scopes::Tenet, Item(Item::Tenet)),
         (Scopes::None, "title", Scopes::LandedTitle, Item(Item::Title)),
         (
             Scopes::Character,

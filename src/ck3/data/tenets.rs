@@ -1,0 +1,119 @@
+use crate::block::{BV, Block};
+use crate::ck3::data::doctrines::validate_special_parameters;
+use crate::ck3::modif::ModifKinds;
+use crate::ck3::validate::validate_traits;
+use crate::context::ScopeContext;
+use crate::db::{Db, DbKind};
+use crate::desc::validate_desc;
+use crate::everything::Everything;
+use crate::game::GameFlags;
+use crate::item::{Item, ItemLoader};
+use crate::modif::validate_modifs;
+use crate::scopes::Scopes;
+use crate::token::Token;
+use crate::tooltipped::Tooltipped;
+use crate::validator::Validator;
+
+#[derive(Clone, Debug)]
+pub struct Tenet {}
+
+inventory::submit! {
+    ItemLoader::Normal(GameFlags::Ck3, Item::Tenet, Tenet::add)
+}
+
+impl Tenet {
+    pub fn add(db: &mut Db, key: Token, block: Block) {
+        db.add(Item::Tenet, key, block, Box::new(Self {}));
+    }
+}
+
+impl DbKind for Tenet {
+    fn add_subitems(&self, _key: &Token, block: &Block, db: &mut Db) {
+        // Tenet parameters are plain flags that can be checked like doctrine parameters
+        if let Some(block) = block.get_field_block("parameters") {
+            for token in block.iter_values() {
+                db.add_flag(Item::DoctrineBooleanParameter, token.clone());
+                db.add_flag(Item::DoctrineParameter, token.clone());
+            }
+        }
+        if let Some(block) = block.get_field_block("personal_tenet_parameters") {
+            for token in block.iter_values() {
+                db.add_flag(Item::PersonalTenetParameter, token.clone());
+            }
+        }
+    }
+
+    fn validate(&self, key: &Token, block: &Block, data: &Everything) {
+        let mut vd = Validator::new(block, data);
+        // `selected_doctrines` holds the selected core tenets and doctrines
+        let selected = Scopes::Doctrine | Scopes::Tenet;
+        let mut faith_sc = ScopeContext::new(Scopes::Faith, key);
+        faith_sc.define_list("selected_doctrines", selected, key);
+        let mut can_pick_sc = ScopeContext::new(Scopes::Faith, key);
+        can_pick_sc.define_name("actor", Scopes::Character, key);
+        can_pick_sc.define_list("selected_doctrines", selected, key);
+        // Not documented for piety_cost, but vanilla uses it there (like for doctrines)
+        let mut rite_sc = ScopeContext::new(Scopes::Rite, key);
+        rite_sc.define_list("selected_doctrines", selected, key);
+
+        // Documented as a triggered block, but vanilla uses plain icon names
+        if !vd.field_validated("icon", |bv, data| match bv {
+            BV::Value(token) => data.verify_icon("NGameIcons|TENET_TYPE_ICON_PATH", token, ".dds"),
+            BV::Block(block) => {
+                let mut vd = Validator::new(block, data);
+                vd.field_trigger_rooted("trigger", Tooltipped::No, Scopes::Faith);
+                vd.req_field("reference");
+                vd.field_icon("reference", "NGameIcons|TENET_TYPE_ICON_PATH", ".dds");
+            }
+        }) {
+            data.verify_icon("NGameIcons|TENET_TYPE_ICON_PATH", key, ".dds");
+        }
+
+        if !vd.field_validated_sc("name", &mut rite_sc, validate_desc) {
+            let loca = format!("{key}_name");
+            data.verify_exists_implied(Item::Localization, &loca, key);
+        }
+        if !vd.field_validated_sc("desc", &mut rite_sc, validate_desc) {
+            let loca = format!("{key}_desc");
+            data.verify_exists_implied(Item::Localization, &loca, key);
+        }
+        vd.field_validated_sc("historical_glossary", &mut rite_sc, validate_desc);
+
+        vd.field_bool("visible");
+        vd.field_item("requires_dlc_flag", Item::DlcFeature);
+        vd.field_validated_block("parameters", |block, data| {
+            let mut vd = Validator::new(block, data);
+            vd.values();
+        });
+        vd.field_script_value("piety_cost", &mut rite_sc);
+        vd.field_trigger("is_shown", Tooltipped::No, &mut faith_sc);
+        vd.field_trigger("can_pick", Tooltipped::Yes, &mut can_pick_sc);
+        // TODO: verify tooltip
+        vd.field_trigger_rooted("can_pick_as_personal_tenet", Tooltipped::Yes, Scopes::Character);
+        vd.field_numeric("divergence_multiplier");
+
+        vd.field_validated_block("character_modifier", |block, data| {
+            let mut vd = Validator::new(block, data);
+            vd.field_item("name", Item::Localization); // undocumented
+            validate_modifs(block, data, ModifKinds::Character, vd);
+        });
+        vd.field_validated_block("clergy_modifier", |block, data| {
+            let vd = Validator::new(block, data);
+            validate_modifs(block, data, ModifKinds::Character, vd);
+        });
+        vd.field_validated_block("county_modifier", |block, data| {
+            let vd = Validator::new(block, data);
+            validate_modifs(block, data, ModifKinds::County, vd);
+        });
+        vd.field_validated_block("traits", validate_traits);
+        vd.field_validated_block("special_parameters", validate_special_parameters);
+        vd.field_validated_block("personal_tenet_modifier", |block, data| {
+            let vd = Validator::new(block, data);
+            validate_modifs(block, data, ModifKinds::Character, vd);
+        });
+        vd.field_validated_block("personal_tenet_parameters", |block, data| {
+            let mut vd = Validator::new(block, data);
+            vd.values();
+        });
+    }
+}

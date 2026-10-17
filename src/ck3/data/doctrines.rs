@@ -6,8 +6,10 @@ use crate::db::{Db, DbKind};
 use crate::desc::validate_desc;
 use crate::everything::Everything;
 use crate::game::GameFlags;
+use crate::helpers::stringify_choices;
 use crate::item::{Item, ItemLoader};
 use crate::modif::validate_modifs;
+use crate::report::{ErrorKey, err};
 use crate::scopes::Scopes;
 use crate::token::Token;
 use crate::tooltipped::Tooltipped;
@@ -141,4 +143,54 @@ fn validate_parameters(block: &Block, data: &Everything) {
         }
         value.expect_number();
     });
+}
+
+const HOSTILITY_LEVELS: &[&str] = &["righteous", "astray", "hostile", "evil"];
+
+/// The `special_parameters` block of doctrines and tenets
+pub fn validate_special_parameters(block: &Block, data: &Everything) {
+    let mut vd = Validator::new(block, data);
+    vd.field_integer("number_of_spouses");
+    vd.field_integer("number_of_consorts");
+    vd.field_integer("divine_marriage_opinion");
+    vd.field_integer("minimum_fervor");
+    vd.field_numeric("fervor_per_holy_site");
+    vd.field_numeric("bonus_fervor_gain");
+    vd.field_integer("bonus_heresy_protection");
+    vd.field_numeric("divergence_protection");
+    vd.field_numeric("heresy_threshold");
+    vd.field_validated_block("hostility_levels", |block, data| {
+        let mut vd = Validator::new(block, data);
+        vd.field_choice("same_religion", HOSTILITY_LEVELS);
+        vd.field_choice("same_family", HOSTILITY_LEVELS);
+        vd.field_choice("unrelated", HOSTILITY_LEVELS);
+    });
+    vd.field_validated_block("hostility_level_override", |block, data| {
+        let mut vd = Validator::new(block, data);
+        vd.unknown_value_fields(|key, value| {
+            if !data.item_exists(Item::Doctrine, key.as_str()) {
+                data.verify_exists(Item::Tenet, key);
+            }
+            if !HOSTILITY_LEVELS.contains(&value.as_str()) {
+                let msg = format!("expected one of {}", stringify_choices(HOSTILITY_LEVELS));
+                err(ErrorKey::Choice).msg(msg).loc(value).push();
+            }
+        });
+    });
+    vd.field_choice("same_hof_hostility_override", HOSTILITY_LEVELS);
+    vd.field_validated_block("parameter_opinion_override", |block, data| {
+        let mut vd = Validator::new(block, data);
+        vd.unknown_value_fields(|key, value| {
+            data.verify_exists(Item::DoctrineParameter, key);
+            value.expect_integer();
+        });
+    });
+    vd.field_numeric("hostility_towards_us_mult");
+    vd.field_numeric("piety_from_long_peace");
+    vd.field_list_items("allowed_holding_types", Item::HoldingType);
+    vd.field_bool("unreformed");
+    vd.field_bool("warmonger");
+    vd.field_numeric("increased_dynasty_prestige_birth_mult");
+    vd.field_numeric("increased_dynasty_prestige_marriage_mult");
+    vd.field_numeric("increased_dynasty_prestige_long_reign_mult");
 }

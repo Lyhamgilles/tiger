@@ -300,8 +300,7 @@ const TRIGGER: &[(Scopes, &str, Trigger)] = &[
         ),
     ),
     (Scopes::Character, "can_nomad_raze_holding", Scope(Scopes::Province)),
-    // TODO: 1.20 ScopeOrItem(Scopes::Tenet, Item::Tenet)
-    (Scopes::Character, "can_pick_personal_tenet", UncheckedValue),
+    (Scopes::Character, "can_pick_personal_tenet", ScopeOrItem(Scopes::Tenet, Item::Tenet)),
     (Scopes::Character, "can_plan_great_project", Scope(Scopes::GreatProjectType)),
     (
         Scopes::Character,
@@ -703,12 +702,11 @@ const TRIGGER: &[(Scopes, &str, Trigger)] = &[
     (Scopes::Artifact, "has_artifact_feature", Item(Item::ArtifactFeature)),
     (Scopes::Artifact, "has_artifact_feature_group", Item(Item::ArtifactFeatureGroup)),
     (Scopes::Artifact, "has_artifact_modifier", Item(Item::Modifier)),
-    // TODO: 1.20 tenet = ScopeOrItem(Scopes::Tenet, Item::Tenet)
     (
         Scopes::Rite,
         "has_at_least_tenet_status",
         Block(&[
-            ("tenet", UncheckedValue),
+            ("tenet", ScopeOrItem(Scopes::Tenet, Item::Tenet)),
             ("status", Choice(&["unknown", "known", "prohibited", "permitted", "core"])),
         ]),
     ),
@@ -831,7 +829,6 @@ const TRIGGER: &[(Scopes, &str, Trigger)] = &[
     (Scopes::None, "has_dlc_feature", Item(Item::DlcFeature)),
     (Scopes::Faith, "has_doctrine", ScopeOrItem(Scopes::Doctrine, Item::Doctrine)),
     (Scopes::Faith, "has_doctrine_group", Item(Item::DoctrineGroup)),
-    // TODO: 1.20 also collect the parameters of tenets
     (Scopes::Faith, "has_doctrine_parameter", Item(Item::DoctrineBooleanParameter)),
     (Scopes::Character, "has_domicile", Boolean),
     (Scopes::Domicile, "has_domicile_building", Item(Item::DomicileBuilding)),
@@ -1041,10 +1038,8 @@ const TRIGGER: &[(Scopes, &str, Trigger)] = &[
         "has_personal_legend_seed",
         ScopeOrItem(Scopes::LegendType, Item::LegendType),
     ),
-    // TODO: 1.20 ScopeOrItem(Scopes::Tenet, Item::Tenet)
-    (Scopes::Character, "has_personal_tenet", UncheckedValue),
-    // TODO: 1.20 Item::PersonalTenetParameter
-    (Scopes::Character, "has_personal_tenet_flag", UncheckedValue),
+    (Scopes::Character, "has_personal_tenet", ScopeOrItem(Scopes::Tenet, Item::Tenet)),
+    (Scopes::Character, "has_personal_tenet_flag", Item(Item::PersonalTenetParameter)),
     (
         Scopes::Activity,
         "has_phase",
@@ -1204,14 +1199,12 @@ const TRIGGER: &[(Scopes, &str, Trigger)] = &[
     (Scopes::TaskContract, "has_task_contract_group", Item(Item::TaskContractGroup)),
     (Scopes::TaskContract, "has_task_contract_type", Item(Item::TaskContractType)),
     (Scopes::TaxSlot, "has_tax_collector", Boolean),
-    // TODO: 1.20 ScopeOrItem(Scopes::Tenet, Item::Tenet)
-    (Scopes::Faith, "has_tenet", UncheckedValue),
-    // TODO: 1.20 tenet = ScopeOrItem(Scopes::Tenet, Item::Tenet)
+    (Scopes::Faith, "has_tenet", ScopeOrItem(Scopes::Tenet, Item::Tenet)),
     (
         Scopes::Rite,
         "has_tenet_status",
         Block(&[
-            ("tenet", UncheckedValue),
+            ("tenet", ScopeOrItem(Scopes::Tenet, Item::Tenet)),
             ("status", Choice(&["unknown", "known", "prohibited", "permitted", "core"])),
         ]),
     ),
@@ -1761,8 +1754,7 @@ const TRIGGER: &[(Scopes, &str, Trigger)] = &[
         "knows_rite_level",
         Block(&[("target", Scope(Scopes::Rite)), ("+value", CompareValue)]),
     ),
-    // TODO: 1.20 ScopeOrItem(Scopes::Tenet, Item::Tenet)
-    (Scopes::Character, "knows_tenet", UncheckedValue),
+    (Scopes::Character, "knows_tenet", ScopeOrItem(Scopes::Tenet, Item::Tenet)),
     (Scopes::Character, "learning", CompareValue),
     (
         Scopes::Character,
@@ -2155,8 +2147,7 @@ const TRIGGER: &[(Scopes, &str, Trigger)] = &[
         Block(&[("target", Scope(Scopes::Character)), ("+value", CompareValue)]),
     ),
     (Scopes::Rite, "rite_can_choose_doctrine", ScopeOrItem(Scopes::Doctrine, Item::Doctrine)),
-    // TODO: 1.20 ScopeOrItem(Scopes::Tenet, Item::Tenet)
-    (Scopes::Rite, "rite_can_choose_tenet", UncheckedValue),
+    (Scopes::Rite, "rite_can_choose_tenet", ScopeOrItem(Scopes::Tenet, Item::Tenet)),
     (Scopes::Rite, "rite_counties", CompareValue),
     (
         Scopes::Character,
@@ -2167,11 +2158,9 @@ const TRIGGER: &[(Scopes, &str, Trigger)] = &[
     (Scopes::Rite, "rite_has_culture", Scope(Scopes::Culture)),
     (Scopes::Rite, "rite_has_doctrine", ScopeOrItem(Scopes::Doctrine, Item::Doctrine)),
     (Scopes::Rite, "rite_has_dominant_ruling_gender", Scope(Scopes::Character)),
-    // TODO: 1.20 also collect the parameters of tenets
     (Scopes::Rite, "rite_has_parameter", Item(Item::DoctrineBooleanParameter)),
     (Scopes::Rite, "rite_has_preferred_gender_for_clergy", Scope(Scopes::Character)),
-    // TODO: 1.20 ScopeOrItem(Scopes::Tenet, Item::Tenet)
-    (Scopes::Rite, "rite_has_tenet", UncheckedValue),
+    (Scopes::Rite, "rite_has_tenet", ScopeOrItem(Scopes::Tenet, Item::Tenet)),
     (
         Scopes::Rite,
         "rite_hostility_level",

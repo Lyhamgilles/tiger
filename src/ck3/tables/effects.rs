@@ -153,8 +153,7 @@ const SCOPE_EFFECT: &[(Scopes, &str, Effect)] = &[
     (Scopes::Character, "add_joined_faction_discontent", ScriptValue),
     (Scopes::Character, "add_known_doctrine", ScopeOrItem(Scopes::Doctrine, Item::Doctrine)),
     (Scopes::Character, "add_known_rite", Scope(Scopes::Rite)),
-    // TODO: 1.20 ScopeOrItem(Scopes::Tenet, Item::Tenet)
-    (Scopes::Character, "add_known_tenet", Unchecked),
+    (Scopes::Character, "add_known_tenet", ScopeOrItem(Scopes::Tenet, Item::Tenet)),
     (Scopes::Character, "add_knows_of_killer", Scope(Scopes::Character)),
     (Scopes::Character, "add_learning_skill", ScriptValue),
     (Scopes::Legend, "add_legend_county_modifier", Vbv(validate_add_modifier)),
@@ -198,8 +197,7 @@ const SCOPE_EFFECT: &[(Scopes, &str, Effect)] = &[
     (Scopes::Character, "add_reserved_gold", ScriptValue),
     (Scopes::Rite, "add_rite_culture", Scope(Scopes::Culture)),
     (Scopes::Rite, "add_rite_doctrine", ScopeOrItem(Scopes::Doctrine, Item::Doctrine)),
-    // TODO: 1.20 ScopeOrItem(Scopes::Tenet, Item::Tenet)
-    (Scopes::Rite, "add_rite_tenet", Unchecked),
+    (Scopes::Rite, "add_rite_tenet", ScopeOrItem(Scopes::Tenet, Item::Tenet)),
     (Scopes::Faith, "add_saint", Vb(validate_add_saint)),
     (Scopes::Artifact, "add_sanctified_for_faith", Scope(Scopes::Faith)),
     (Scopes::Scheme, "add_scheme_breach", ScriptValue),
@@ -228,8 +226,7 @@ const SCOPE_EFFECT: &[(Scopes, &str, Effect)] = &[
         Vb(validate_add_takeover_phase_points),
     ),
     (Scopes::Character, "add_targeting_factions_discontent", ScriptValue),
-    // TODO: 1.20 ScopeOrItem(Scopes::Tenet, Item::Tenet)
-    (Scopes::Faith, "add_tenet", Unchecked),
+    (Scopes::Faith, "add_tenet", ScopeOrItem(Scopes::Tenet, Item::Tenet)),
     (Scopes::LandedTitle, "add_title_law", Item(Item::Law)),
     (Scopes::LandedTitle, "add_title_law_effects", Item(Item::Law)),
     (Scopes::SituationSubRegion, "add_title_to_sub_region", Removed("1.18", "")),
@@ -561,8 +558,7 @@ const SCOPE_EFFECT: &[(Scopes, &str, Effect)] = &[
     (Scopes::Character, "force_character_skill_recalculation", Yes),
     (Scopes::CouncilTask, "force_next_councillor", Scope(Scopes::Character)),
     (Scopes::Rite, "force_refresh_head_of_rite", Yes),
-    // TODO: 1.20 ScopeOrItem(Scopes::Tenet, Item::Tenet)
-    (Scopes::Character, "force_set_personal_tenet", Unchecked),
+    (Scopes::Character, "force_set_personal_tenet", ScopeOrItem(Scopes::Tenet, Item::Tenet)),
     (Scopes::Character, "force_step_down_landed_titles", Yes),
     (Scopes::Character, "force_vote_as", Vb(validate_force_vote_as)),
     (Scopes::CombatSide, "force_win", Yes),
@@ -827,8 +823,7 @@ const SCOPE_EFFECT: &[(Scopes, &str, Effect)] = &[
     (Scopes::War, "remove_participant", Scope(Scopes::Character)),
     (Scopes::Character, "remove_perk", Item(Item::Perk)),
     (Scopes::Character, "remove_personal_artifact_claim", Scope(Scopes::Artifact)),
-    // TODO: 1.20 ScopeOrItem(Scopes::Tenet, Item::Tenet)
-    (Scopes::Character, "remove_personal_tenet", Unchecked),
+    (Scopes::Character, "remove_personal_tenet", ScopeOrItem(Scopes::Tenet, Item::Tenet)),
     (Scopes::Province, "remove_province_modifier", Item(Item::Modifier)),
     (Scopes::Culture, "remove_random_culture_tradition", Yes),
     (Scopes::Character, "remove_realm_law", Item(Item::Law)),
@@ -840,8 +835,7 @@ const SCOPE_EFFECT: &[(Scopes, &str, Effect)] = &[
     (Scopes::Character, "remove_reserved_treasury", ScriptValue),
     (Scopes::Rite, "remove_rite_culture", Scope(Scopes::Culture)),
     (Scopes::Rite, "remove_rite_doctrine", ScopeOrItem(Scopes::Doctrine, Item::Doctrine)),
-    // TODO: 1.20 ScopeOrItem(Scopes::Tenet, Item::Tenet)
-    (Scopes::Rite, "remove_rite_tenet", Unchecked),
+    (Scopes::Rite, "remove_rite_tenet", ScopeOrItem(Scopes::Tenet, Item::Tenet)),
     (Scopes::Faith, "remove_saint", Scope(Scopes::Character)),
     (Scopes::Artifact, "remove_sanctified_for_faith", Scope(Scopes::Faith)),
     (
@@ -855,8 +849,7 @@ const SCOPE_EFFECT: &[(Scopes, &str, Effect)] = &[
     (Scopes::Character, "remove_short_term_treasury", ScriptValue),
     (Scopes::Faction, "remove_special_character", Yes),
     (Scopes::Faction, "remove_special_title", Yes),
-    // TODO: 1.20 ScopeOrItem(Scopes::Tenet, Item::Tenet)
-    (Scopes::Faith, "remove_tenet", Unchecked),
+    (Scopes::Faith, "remove_tenet", ScopeOrItem(Scopes::Tenet, Item::Tenet)),
     (Scopes::LandedTitle, "remove_title_from_important_location", Scope(Scopes::LandedTitle)),
     (Scopes::SituationSubRegion, "remove_title_from_sub_region", Removed("1.18", "")),
     // docs say these next two are scope None, but that does not make sense.

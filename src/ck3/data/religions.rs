@@ -178,7 +178,7 @@ fn validate_doctrines(iname: &str, data: &Everything, vd: &mut Validator) {
     });
 }
 
-fn validate_localization(block: &Block, data: &Everything) {
+pub(crate) fn validate_localization(block: &Block, data: &Everything) {
     let mut vd = Validator::new(block, data);
     for field in CUSTOM_RELIGION_LOCAS {
         vd.field_validated(field, |bv, data| match bv {
