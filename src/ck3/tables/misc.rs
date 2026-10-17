@@ -95,7 +95,7 @@ pub const CURRENCIES_CK3: &[&str] = &[
     "barter_goods",
 ];
 
-// LAST UPDATED CK3 VERSION 1.18.3
+// LAST UPDATED CK3 VERSION 1.20.1
 // Taken from the Faith.random_ values in `data_types_uncategorized.txt`
 pub const CUSTOM_RELIGION_LOCAS: &[&str] = &[
     "AltPriestTermPlural",
@@ -192,6 +192,7 @@ pub const CUSTOM_RELIGION_LOCAS: &[&str] = &[
     "PriestNeuter",
     "PriestNeuterPlural",
     "ReligiousHeadName",
+    "ReligiousHeadNameFemale",
     "ReligiousHeadTitleName",
     "ReligiousSymbol",
     "ReligiousSymbol2",
@@ -228,7 +229,7 @@ pub const CUSTOM_RELIGION_LOCAS: &[&str] = &[
     "WitchGodSheHe",
 ];
 
-/// LAST UPDATED CK3 VERSION 1.19.0
+/// LAST UPDATED CK3 VERSION 1.20.1
 /// Taken from `has_dlc_feature` in triggers.log
 pub const DLC_FEATURES_CK3: &[&str] = &[
     "garments_of_the_hre",
@@ -267,7 +268,6 @@ pub const DLC_FEATURES_CK3: &[&str] = &[
     "all_under_heaven",
     "merit_admin",
     "advanced_aspirations",
-    "barter_troops",
     "high_medieval_warfare_attire",
     "holy_buildings",
     "north_pacific_attire",
@@ -275,6 +275,7 @@ pub const DLC_FEATURES_CK3: &[&str] = &[
     "celestial_court_attire",
     "symbols_of_authority",
     "songs_of_the_realm",
+    "by_god_alone",
 ];
 
 /// A list of music provided by DLCs, for people who don't have them
