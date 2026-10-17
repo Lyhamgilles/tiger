@@ -1,4 +1,4 @@
-// LAST UPDATED CK3 VERSION 1.15.0
+// LAST UPDATED CK3 VERSION 1.20.1
 pub const ON_ACTION_SCOPES: &str = "
 	on_accolade_rank_change = {
 		root = accolade
@@ -74,6 +74,14 @@ pub const ON_ACTION_SCOPES: &str = "
 		war = war
 		list = { occupied_baronies = landed_title }
 	}
+	on_liberation_siege_completion = {
+		root = character
+		barony = landed_title
+		county = landed_title
+		previous_controller = character
+		war = war
+		list = { liberated_baronies = landed_title }
+	}
 	on_raid_action_start = {
 		root = army
 		raider = character
@@ -85,6 +93,7 @@ pub const ON_ACTION_SCOPES: &str = "
 	on_raid_loot_delivered = {
 		root = army
 		raider = character
+		raid_loot = value
 	}
 	on_defeat_raid_army = {
 		root = army
@@ -94,14 +103,17 @@ pub const ON_ACTION_SCOPES: &str = "
 
 	on_building_completed = {
 		root = province
+		character = character # may be unset
 	}
 
 	on_building_started = {
 		root = province
+		character = character # may be unset
 	}
 
 	on_building_cancelled = {
 		root = province
+		character = character # may be unset
 	}
 
 	on_birth_mother = {
@@ -141,6 +153,17 @@ pub const ON_ACTION_SCOPES: &str = "
 		old_employer = character
 		council_task = council_task
 		councillor = character
+	}
+	on_leave_council = {
+		root = character
+		council_task = council_task # undocumented
+		councillor = character
+	}
+	on_fired_from_council = {
+		root = character
+		council_task = council_task
+		councillor = character
+		new_councillor = character
 	}
 
 	on_stress_level_reduced = {
@@ -192,8 +215,11 @@ pub const ON_ACTION_SCOPES: &str = "
 	}
 	on_court_language_changed = {
 		root = character
+		target_character = character
 	}
-	on_court_type_changed = on_court_language_changed
+	on_court_type_changed = {
+		root = character
+	}
 	on_player_royal_court_first_gained = {
 		root = character
 	}
@@ -247,6 +273,8 @@ pub const ON_ACTION_SCOPES: &str = "
 	on_death = {
 		root = character
 		killer = character # may be unset
+		death_reason = flag # TODO: verify scope type
+		artifact = artifact # may be unset
 	}
 	on_natural_death_second_chance = {
 		root = character
@@ -285,6 +313,14 @@ pub const ON_ACTION_SCOPES: &str = "
 		title = landed_title
 		leader = character
 	}
+	yearly_holy_order_pulse = {
+		root = holy_order
+		founder = character
+		leader = character
+		province = province
+		title = landed_title
+		rite = rite
+	}
 
 	on_perks_refunded = {
 		root = character
@@ -292,7 +328,23 @@ pub const ON_ACTION_SCOPES: &str = "
 
 	on_ruler_designer_finished = {
 		root = character
+		ruler_designer = flag
 	}
+
+	on_character_created = {
+		root = character
+		creation_reason = flag
+	}
+	on_player_character_change = {
+		root = character
+		previous_player_character = character
+	}
+
+	on_trait_gained = {
+		root = character
+		trait = trait
+	}
+	on_trait_lost = on_trait_gained
 
 	on_hook_used = {
 		root = character
@@ -302,6 +354,20 @@ pub const ON_ACTION_SCOPES: &str = "
 	on_artifact_changed_owner = {
 		root = artifact
 		owner = character
+		old_owner = character
+		old_holy_site = holy_site
+	}
+	on_holy_site_artifact_enshrined = {
+		root = artifact
+		holy_site = holy_site
+		actor = character
+		replacing = artifact
+	}
+	on_holy_site_artifact_removed = on_holy_site_artifact_enshrined
+	on_artifact_changed_holy_site_owner = {
+		root = artifact
+		holy_site = holy_site
+		old_holy_site = holy_site
 		old_owner = character
 	}
 	on_artifact_succession = {
@@ -376,13 +442,85 @@ pub const ON_ACTION_SCOPES: &str = "
 	on_release_from_prison = on_imprison
 
 	on_faith_created = {
+		root = faith
+		founder = character
+		old_faith = faith
+		old_rite = rite
+		diverged = bool
+	}
+	on_faith_conversion = {
 		root = character
 		old_faith = faith
+		old_rite = rite
+		founder = character
 	}
-	on_faith_conversion = on_faith_created
-	on_character_faith_change = on_faith_created
 	on_faith_monthly = {
 		root = faith
+	}
+	on_rite_change = {
+		root = character
+		old_faith = faith
+		old_rite = rite
+	}
+	on_rite_created = on_rite_change
+	on_rite_updated = {
+		root = rite
+		changed_tenets_or_doctrines = bool # TODO: verify scope type
+		consume_rite_edit_token = bool # TODO: verify scope type
+		list = { added_tenets = tenet }
+		list = { removed_tenets = tenet }
+		list = { added_doctrines = doctrine }
+		list = { removed_doctrines = doctrine }
+		list = { changed_tenet_status = tenet }
+	}
+	on_rite_edited = {
+		root = rite
+	}
+	on_rite_yearly = {
+		root = rite
+	}
+	on_county_rite_change = {
+		root = landed_title
+		old_rite = rite
+	}
+	on_personal_tenet_gain = {
+		root = character
+		tenet = tenet
+	}
+	on_personal_tenet_loss = on_personal_tenet_gain
+	on_faith_holy_site_added = {
+		root = faith
+		title = landed_title
+		holy_site = holy_site
+		is_eminent_site = bool
+		is_new_holy_site = bool
+		actor = character
+	}
+	on_faith_holy_site_removed = {
+		root = faith
+		title = landed_title
+		holy_site = holy_site
+		is_eminent_site = bool
+		actor = character
+	}
+	on_faith_holy_site_eminence_changed = on_faith_holy_site_removed
+	on_character_holy_site_created = {
+		root = character
+		title = landed_title
+		holy_site_type = holy_site_type
+		faith = faith
+		list = { artifacts = artifact }
+	}
+	on_clerical_region_faith_mismatch = {
+		root = character
+		title = landed_title
+		county = landed_title
+		reason = flag
+	}
+	on_challenger_removed = {
+		root = character
+		sponsor = landed_title
+		title = landed_title
 	}
 	on_potential_great_holy_war_invalidation = {
 		root = ghw
@@ -455,6 +593,7 @@ pub const ON_ACTION_SCOPES: &str = "
 	on_explicit_claim_lost = {
 		root = character
 		title = landed_title
+		transfer_type = flag
 	}
 	on_rank_up = on_explicit_claim_lost
 	on_rank_down = on_explicit_claim_lost
@@ -471,7 +610,9 @@ pub const ON_ACTION_SCOPES: &str = "
 	}
 	on_realm_capital_change = {
 		root = landed_title
+		holder = character
 		old_capital = landed_title
+		transfer_type = flag
 	}
 
 	on_travel_plan_movement = {
@@ -603,6 +744,7 @@ pub const ON_ACTION_SCOPES: &str = "
 	on_vassal_change = {
 		root = character
 		old_liege = character
+		transfer_type = flag
 	}
 
 	on_mercenary_company_hired = {
@@ -626,6 +768,7 @@ pub const ON_ACTION_SCOPES: &str = "
 		root = character
 		actor = character
 		recipient = character
+		puppet_or_actor = character # undocumented
 	}
 
 	on_migration_travel_end = {
@@ -682,6 +825,7 @@ pub const ON_ACTION_SCOPES: &str = "
 	on_primary_title_change = {
 		root = character
 		previous_title = landed_title
+		transfer_type = flag
 	}
 
 	on_apply_inherited_confederation = {
