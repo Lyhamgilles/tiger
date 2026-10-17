@@ -833,7 +833,7 @@ fn match_trigger_bv(
                 warn(ErrorKey::Validation).msg(msg).loc(token).push();
             }
         }
-        #[cfg(any(feature = "vic3", feature = "eu5"))]
+        #[cfg(any(feature = "ck3", feature = "vic3", feature = "eu5"))]
         Trigger::CompareChoiceOrNumber(choices) => {
             must_be_eq = false;
             if let Some(token) = bv.expect_value()
@@ -1925,7 +1925,7 @@ pub enum Trigger {
     #[cfg(any(feature = "ck3", feature = "vic3", feature = "eu5"))]
     CompareChoice(&'static [&'static str]),
     /// like `CompareChoice` but value can also be just a number
-    #[cfg(any(feature = "vic3", feature = "eu5"))]
+    #[cfg(any(feature = "ck3", feature = "vic3", feature = "eu5"))]
     CompareChoiceOrNumber(&'static [&'static str]),
     /// For Block, if a field name in the array starts with ? it means that field is optional
     /// trigger takes a block with these fields
@@ -1990,7 +1990,8 @@ pub fn trigger_comparevalue(name: &Token, data: &Everything) -> Option<Scopes> {
                 | Trigger::CompareDate
                 | Trigger::SetValue
                 | Trigger::BlockOrCompareValue(_)
-                | Trigger::CompareChoice(_),
+                | Trigger::CompareChoice(_)
+                | Trigger::CompareChoiceOrNumber(_),
             )),
         ) => Some(s),
         #[cfg(feature = "vic3")]
