@@ -572,6 +572,7 @@ const SCOPE_EFFECT: &[(Scopes, &str, Effect)] = &[
         Scopes::LandedTitle
             .union(Scopes::Dynasty)
             .union(Scopes::DynastyHouse)
+            .union(Scopes::Organization)
             .union(Scopes::Confederation),
         "generate_coa",
         Vv(validate_generate_coa),
@@ -889,6 +890,7 @@ const SCOPE_EFFECT: &[(Scopes, &str, Effect)] = &[
         Scopes::LandedTitle
             .union(Scopes::Dynasty)
             .union(Scopes::DynastyHouse)
+            .union(Scopes::Organization)
             .union(Scopes::Confederation),
         "reset_coa",
         Yes,
@@ -974,6 +976,7 @@ const SCOPE_EFFECT: &[(Scopes, &str, Effect)] = &[
         Scopes::LandedTitle
             .union(Scopes::Dynasty)
             .union(Scopes::DynastyHouse)
+            .union(Scopes::Organization)
             .union(Scopes::Confederation),
         "set_coa",
         Vv(validate_set_coa),

@@ -77,6 +77,8 @@ pub const ARTIFACT_HISTORY: &[&str] = &[
     "prize_awarded",
     "ransomed",
     "reforged",
+    "enshrined",
+    "removed_from_holy_site",
 ];
 
 /// LAST UPDATED CK3 VERSION 1.18.3
@@ -507,8 +509,8 @@ pub const TITLE_HISTORY_TYPES: &[&str] = &[
     "stepped_down",
     "appointment",
     "appointment_succession",
-    // undocumented
     "migration",
+    "confederation",
 ];
 
 // LAST UPDATED CK3 VERSION 1.16

@@ -615,6 +615,7 @@ pub fn validate_create_character(
     vd.field_item("template", Item::CharacterTemplate); // undocumented
     vd.field_target_ok_this("template_character", sc, Scopes::Character);
     vd.field_item_or_target("faith", sc, Item::Faith, Scopes::Faith);
+    vd.field_target("rite", sc, Scopes::Rite);
     vd.field_validated_block_sc("random_faith", sc, validate_random_faith);
     vd.field_item_or_target("random_faith_in_religion", sc, Item::Religion, Scopes::Faith);
     vd.field_item_or_target("culture", sc, Item::Culture, Scopes::Culture);
@@ -722,8 +723,11 @@ pub fn validate_create_nomad_title(
     _tooltipped: Tooltipped,
 ) {
     vd.field_validated_sc("name", sc, validate_desc);
-    vd.field_validated_sc("prefix", sc, validate_desc);
-    vd.field_validated_sc("adjective", sc, validate_desc);
+    vd.replaced_field("prefix", "`pre`");
+    vd.replaced_field("adjective", "`adj`");
+    vd.field_validated_sc("article", sc, validate_desc);
+    vd.field_validated_sc("pre", sc, validate_desc);
+    vd.field_validated_sc("adj", sc, validate_desc);
     vd.field_target("holder", sc, Scopes::Character);
     vd.field_item("government", Item::GovernmentType);
     if let Some(name) = vd.field_identifier("save_scope_as", "scope name") {
@@ -742,7 +746,11 @@ pub fn validate_create_holy_order(
     vd.req_field("leader");
     vd.req_field("capital");
     vd.field_target("leader", sc, Scopes::Character);
+    vd.field_target("founder", sc, Scopes::Character);
     vd.field_target("capital", sc, Scopes::LandedTitle);
+    // TODO: 1.20 field_item with Item::HolyOrderType
+    vd.field_value("holy_order_type");
+    vd.field_choice("random_holy_order_type", &["any", "military", "monastic", "mendicant"]);
     vd.field_item("name", Item::Localization);
     vd.field_item("coat_of_arms", Item::Coa);
     if let Some(name) = vd.field_identifier("save_scope_as", "scope name") {
@@ -1812,7 +1820,9 @@ pub fn validate_set_relation(
             // Sometimes both are used and I don't know what that means. TODO: verify
             // vd.req_field_one_of(&["reason", "copy_reason"]);
             vd.field_target("target", sc, Scopes::Character);
-            // TODO: {reason}_corresponding is also a loca
+            // TODO: {reason}_corresponding is also a loca, used on the target's side.
+            // If it's missing, the game uses {reason} with CHARACTER and TARGET_CHARACTER swapped,
+            // which is only correct if the text is symmetric (verified in 1.20.1).
             vd.field_item("reason", Item::Localization);
             vd.field_item("copy_reason", Item::Relation);
             vd.field_target("province", sc, Scopes::Province);
@@ -1929,23 +1939,22 @@ pub fn validate_create_adventurer_title(
     vd.req_field("holder");
     vd.field_validated_sc("name", sc, validate_desc);
     vd.field_target("holder", sc, Scopes::Character);
-    vd.field_validated_sc("prefix", sc, validate_desc);
-    vd.field_validated_sc("adjective", sc, validate_desc);
+    vd.replaced_field("prefix", "`pre`");
+    vd.replaced_field("adjective", "`adj`");
+    vd.field_validated_sc("article", sc, validate_desc);
+    vd.field_validated_sc("pre", sc, validate_desc);
+    vd.field_validated_sc("adj", sc, validate_desc);
     vd.field_item("government", Item::GovernmentType);
     if let Some(name) = vd.field_identifier("save_scope_as", "scope name") {
         sc.define_name_token(name.as_str(), Scopes::LandedTitle, name, Temporary::No);
     }
-
-    // undocumented
-
-    vd.field_validated_sc("article", sc, validate_desc);
 }
 
 pub fn validate_start_best_war(
     _key: &Token,
     _block: &Block,
     _data: &Everything,
-    _sc: &mut ScopeContext,
+    sc: &mut ScopeContext,
     mut vd: Validator,
     _tooltipped: Tooltipped,
 ) {
@@ -1963,6 +1972,16 @@ pub fn validate_start_best_war(
 
     vd.field_list_items("cb", Item::CasusBelli);
     vd.field_bool("recalculate_cb_targets");
+    vd.field_validated_block_sc("multi_target", sc, |block, data, sc| {
+        let mut vd = Validator::new(block, data);
+        vd.field_script_value("count", sc);
+        vd.field_script_value("max_cumulative_strength", sc);
+        vd.advice_field(
+            "max_accumulative_strength",
+            "docs say `max_accumulative_strength` but it's `max_cumulative_strength`",
+        );
+    });
+    vd.field_bool("first_valid_cb_type");
     vd.field_trigger_builder("is_valid", Tooltipped::No, sc_builder);
     vd.field_effect_builder("on_success", Tooltipped::No, sc_builder);
     vd.field_effect_builder("on_failure", Tooltipped::No, sc_builder);
@@ -2460,6 +2479,9 @@ pub fn validate_send_interface(
         | Scopes::LandedTitle
         | Scopes::Artifact
         | Scopes::Faith
+        | Scopes::Rite
+        | Scopes::Tenet
+        | Scopes::Doctrine
         | Scopes::Dynasty
         | Scopes::DynastyHouse
         | Scopes::Confederation;

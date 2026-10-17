@@ -801,7 +801,11 @@ const TRIGGER: &[(Scopes, &str, Trigger)] = &[
     (Scopes::Faith, "has_county_of_faith", Scope(Scopes::Faith)),
     (Scopes::Character, "has_court_language", Item(Item::Language)),
     (Scopes::Character, "has_court_language_of_culture", Scope(Scopes::Culture)),
-    (Scopes::Character, "has_court_position", Item(Item::CourtPosition)),
+    (
+        Scopes::Character,
+        "has_court_position",
+        ScopeOrItem(Scopes::CourtPositionType, Item::CourtPosition),
+    ),
     (Scopes::Character, "has_court_type", Item(Item::CourtType)),
     (Scopes::Culture, "has_cultural_era_or_later", Item(Item::CultureEra)),
     (Scopes::Culture, "has_cultural_parameter", Item(Item::CultureParameter)),
@@ -827,6 +831,7 @@ const TRIGGER: &[(Scopes, &str, Trigger)] = &[
     (Scopes::None, "has_dlc_feature", Item(Item::DlcFeature)),
     (Scopes::Faith, "has_doctrine", ScopeOrItem(Scopes::Doctrine, Item::Doctrine)),
     (Scopes::Faith, "has_doctrine_group", Item(Item::DoctrineGroup)),
+    // TODO: 1.20 also collect the parameters of tenets
     (Scopes::Faith, "has_doctrine_parameter", Item(Item::DoctrineBooleanParameter)),
     (Scopes::Character, "has_domicile", Boolean),
     (Scopes::Domicile, "has_domicile_building", Item(Item::DomicileBuilding)),
@@ -1924,7 +1929,7 @@ const TRIGGER: &[(Scopes, &str, Trigger)] = &[
     (
         Scopes::Character,
         "num_sinful_traits",
-        BlockOrCompareValue(&[("+value", CompareValue), ("target", Scope(Scopes::Faith))]),
+        BlockOrCompareValue(&[("+value", CompareValue), ("target", Scope(Scopes::Rite))]),
     ),
     (Scopes::Character, "num_taken_task_contracts", CompareValue),
     (Scopes::Character, "num_task_contracts", CompareValue),
@@ -1933,7 +1938,7 @@ const TRIGGER: &[(Scopes, &str, Trigger)] = &[
     (
         Scopes::Character,
         "num_virtuous_traits",
-        BlockOrCompareValue(&[("+value", CompareValue), ("target", Scope(Scopes::Faith))]),
+        BlockOrCompareValue(&[("+value", CompareValue), ("target", Scope(Scopes::Rite))]),
     ),
     (
         Scopes::Character,
