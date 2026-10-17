@@ -121,4 +121,10 @@ const DATATYPE_AND_SCOPE: &[(Datatype, Scopes)] = &[
     (Ck3(TaxSlot), Scopes::TaxSlot),
     (Ck3(SubjectContract), Scopes::VassalContract),
     (Ck3(ObligationLevel), Scopes::VassalObligationLevel),
+    (Ck3(HolySite), Scopes::HolySite),
+    (Ck3(HolySiteType), Scopes::HolySiteType),
+    (Ck3(Organization), Scopes::Organization),
+    (Ck3(Rite), Scopes::Rite),
+    (Ck3(RiteType), Scopes::RiteType),
+    (Ck3(TenetType), Scopes::Tenet),
 ];

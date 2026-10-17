@@ -25,7 +25,7 @@ bitflags! {
     ///
     /// The available scope types depend on the game.
     /// They are listed in `event_scopes.log` from the game data dumps.
-    // LAST UPDATED CK3 VERSION 1.16.0
+    // LAST UPDATED CK3 VERSION 1.20.1
     // LAST UPDATED VIC3 VERSION 1.8.1
     // LAST UPDATED IR VERSION 2.0.4
     //
@@ -134,15 +134,19 @@ bitflags! {
         #[cfg(feature = "ck3")] const SituationSubRegion = 1<<66;
         #[cfg(feature = "ck3")] const Confederation = 1<<67;
         // CK3 1.18
-        #[cfg(feature = "ck3")] const HouseAspiration = 1<<68;
         #[cfg(feature = "ck3")] const HouseRelation = 1<<69;
-        #[cfg(feature = "ck3")] const HouseRelationType = 1<<70;
-        #[cfg(feature = "ck3")] const HouseRelationLevel = 1<<71;
         #[cfg(feature = "ck3")] const ConfederationType = 1<<72;
         #[cfg(feature = "ck3")] const GreatProject = 1<<73;
         #[cfg(feature = "ck3")] const ProjectContribution = 1<<74;
         #[cfg(feature = "ck3")] const CultureInnovation = 1<<75;
         #[cfg(feature = "ck3")] const GreatProjectType = 1<<76;
+        // CK3 1.20
+        #[cfg(feature = "ck3")] const HolySite = 1<<77;
+        #[cfg(feature = "ck3")] const HolySiteType = 1<<78;
+        #[cfg(feature = "ck3")] const Organization = 1<<79;
+        #[cfg(feature = "ck3")] const Rite = 1<<80;
+        #[cfg(feature = "ck3")] const RiteType = 1<<81;
+        #[cfg(feature = "ck3")] const Tenet = 1<<82;
 
         #[cfg(feature = "vic3")] const Battle = 1<<16;
         #[cfg(feature = "vic3")] const BattleSide = 1<<17;

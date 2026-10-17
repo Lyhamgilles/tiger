@@ -137,7 +137,6 @@ const SCOPE_TO_SCOPE: &[(Scopes, &str, Scopes)] = &[
     (Scopes::Character, "home_court", Scopes::Character),
     (Scopes::Character, "host", Scopes::Character),
     (Scopes::Character, "house", Scopes::DynastyHouse),
-    (Scopes::DynastyHouse, "house_aspiration", Scopes::HouseAspiration),
     (Scopes::DynastyHouse, "house_confederation", Scopes::Confederation),
     (Scopes::DynastyHouse, "house_dynasty", Scopes::Dynasty),
     (Scopes::DynastyHouse, "house_founder", Scopes::Character),
@@ -347,19 +346,6 @@ const SCOPE_PREFIX: &[(Scopes, &str, Scopes, ArgumentValue)] = {
         ),
         (Scopes::None, "holding_type", Scopes::HoldingType, Item(Item::GovernmentType)),
         (Scopes::None, "house", Scopes::DynastyHouse, Item(Item::House)),
-        (Scopes::None, "house_aspiration", Scopes::HouseAspiration, Item(Item::HouseAspiration)),
-        (
-            Scopes::None,
-            "house_relation_level",
-            Scopes::HouseRelationLevel,
-            Item(Item::HouseRelationLevel),
-        ),
-        (
-            Scopes::None,
-            "house_relation_type",
-            Scopes::HouseRelationType,
-            Item(Item::HouseRelationType),
-        ),
         (Scopes::Legend, "legend_property", Scopes::all(), Item(Item::LegendProperty)),
         (Scopes::None, "legend_type", Scopes::LegendType, Item(Item::LegendType)),
         (Scopes::None, "list_size", Scopes::Value, UncheckedValue),
@@ -484,4 +470,5 @@ const SCOPE_TO_SCOPE_REMOVED: &[(&str, &str, &str)] = &[
     ("house_power", "1.19", "replaced by `house_aspiration`"),
     ("primary_type", "1.19", ""),
     ("secondary_type", "1.19", ""),
+    ("house_aspiration", "1.20", "scope type removed"),
 ];
