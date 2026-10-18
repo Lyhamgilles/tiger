@@ -748,8 +748,7 @@ pub fn validate_create_holy_order(
     vd.field_target("leader", sc, Scopes::Character);
     vd.field_target("founder", sc, Scopes::Character);
     vd.field_target("capital", sc, Scopes::LandedTitle);
-    // TODO: 1.20 field_item with Item::HolyOrderType
-    vd.field_value("holy_order_type");
+    vd.field_item("holy_order_type", Item::HolyOrderType);
     vd.field_choice("random_holy_order_type", &["any", "military", "monastic", "mendicant"]);
     vd.field_item("name", Item::Localization);
     vd.field_item("coat_of_arms", Item::Coa);

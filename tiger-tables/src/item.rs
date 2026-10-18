@@ -342,6 +342,7 @@ pub enum Item {
     #[cfg(feature = "ck3")] HeadDetermination,
     #[cfg(feature = "ck3")] HoldingParameter,
     #[cfg(feature = "ck3")] HoldingType,
+    #[cfg(feature = "ck3")] HolyOrderType,
     #[cfg(feature = "ck3")] HolySiteParameter,
     #[cfg(feature = "ck3")] Hook,
     #[cfg(feature = "ck3")] House,
@@ -1473,6 +1474,8 @@ impl Item {
             Item::HoldingParameter => "common/holdings/",
             #[cfg(feature = "ck3")]
             Item::HoldingType => "common/holdings/",
+            #[cfg(feature = "ck3")]
+            Item::HolyOrderType => "common/holy_orders/",
             #[cfg(feature = "ck3")]
             Item::HolySiteParameter => "common/religion/holy_sites/",
             #[cfg(feature = "ck3")]

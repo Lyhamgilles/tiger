@@ -43,6 +43,7 @@ pub mod government;
 pub mod graphical_unit_types;
 pub mod greatprojects;
 pub mod holdings;
+pub mod holyorders;
 pub mod holysites;
 pub mod hooks;
 pub mod house_unities;
