@@ -78,13 +78,10 @@ impl DbKind for HolySite {
         vd.field_validated_block("parameters", |block, data| {
             let mut vd = Validator::new(block, data);
             vd.values();
-            // The docs say the legacy `parameter = yes` form is still accepted
+            // The docs say the legacy `parameter = yes` form is still accepted, ignoring the value
             vd.unknown_value_fields(|key, value| {
-                if !value.is("yes") {
-                    let msg = format!("unexpected value for holy site parameter `{key}`");
-                    let info = "the value is ignored; list the parameter name on its own";
-                    warn(ErrorKey::Validation).msg(msg).info(info).loc(value).push();
-                }
+                let msg = format!("should use `{key}` instead of `{key} = {value}`");
+                warn(ErrorKey::Deprecated).msg(msg).loc(key).push();
             });
         });
 

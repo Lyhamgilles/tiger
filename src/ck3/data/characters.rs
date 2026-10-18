@@ -386,6 +386,9 @@ impl Character {
                     }
                     // religion and faith both mean faith here
                     "religion" | "faith" => {
+                        if key.is("religion") {
+                            deprecated_religion(key);
+                        }
                         data.verify_exists(Item::Faith, value);
                         return None;
                     }
@@ -656,6 +659,9 @@ impl Character {
         vd.field_integer("history_override_priority");
 
         // religion and faith both mean faith here
+        if let Some(key) = self.block.get_key("religion") {
+            deprecated_religion(key);
+        }
         vd.field_item("religion", Item::Faith);
         vd.field_item("faith", Item::Faith);
         vd.field_item("rite", Item::RiteType);
@@ -740,6 +746,12 @@ impl Character {
         }
         false
     }
+}
+
+/// The docs say `religion` is only supported as a compatibility option
+fn deprecated_religion(key: &Token) {
+    let msg = "should use `faith` instead of `religion`";
+    warn(ErrorKey::Deprecated).msg(msg).loc(key).push();
 }
 
 fn validate_portrait_override(block: &Block, data: &Everything) {

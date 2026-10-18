@@ -357,9 +357,12 @@ fn validate_sub_region(key: &Token, block: &Block, data: &Everything, situation:
     vd.field_item("icon", Item::File);
     vd.field_validated("map_color", validate_possibly_named_color);
     vd.field_list_items("geographical_regions", Item::Region);
-
-    // undocumented
-
+    vd.field_item("center_province", Item::Province);
+    // The docs say this is a legacy alias of `center_province`
+    if let Some(key) = block.get_key("capital_province") {
+        let msg = "should use `center_province` instead of `capital_province`";
+        warn(ErrorKey::Deprecated).msg(msg).loc(key).push();
+    }
     vd.field_item("capital_province", Item::Province);
 }
 
