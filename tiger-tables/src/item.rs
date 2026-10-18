@@ -1435,7 +1435,7 @@ impl Item {
             #[cfg(feature = "ck3")]
             Item::Faction => "common/factions/",
             #[cfg(feature = "ck3")]
-            Item::Faith => "common/religion/religions/",
+            Item::Faith => "common/religion/faith_types/",
             #[cfg(feature = "ck3")]
             Item::FaithIcon => "common/religion/religions/",
             #[cfg(feature = "ck3")]

@@ -1,6 +1,6 @@
 use crate::block::Block;
 use crate::ck3::data::doctrines::validate_doctrine_groups;
-use crate::ck3::data::religions::validate_localization;
+use crate::ck3::data::religions::{validate_localization, validate_tenet_selection_pair};
 use crate::context::ScopeContext;
 use crate::db::{Db, DbKind};
 use crate::desc::validate_desc;
@@ -77,14 +77,7 @@ impl DbKind for RiteType {
         if let Some(doctrines) = block.get_field_list("doctrines") {
             validate_doctrine_groups(&doctrines, data);
         }
-        vd.multi_field_validated_block("tenet_selection_pair", |block, data| {
-            let mut vd = Validator::new(block, data);
-            vd.req_field("requires_dlc_flag");
-            vd.field_item("requires_dlc_flag", Item::DlcFeature);
-            vd.req_field("tenet");
-            vd.field_item("tenet", Item::Tenet);
-            vd.field_item("fallback_tenet", Item::Tenet);
-        });
+        vd.multi_field_validated_block("tenet_selection_pair", validate_tenet_selection_pair);
         vd.field_validated_block("localization", validate_localization);
     }
 }
