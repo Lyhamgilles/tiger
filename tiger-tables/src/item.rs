@@ -1440,7 +1440,7 @@ impl Item {
             #[cfg(feature = "ck3")]
             Item::FaithHistory => "history/faiths/",
             #[cfg(feature = "ck3")]
-            Item::FaithIcon => "common/religion/religions/",
+            Item::FaithIcon => "common/religion/religion_types/",
             #[cfg(feature = "ck3")]
             Item::FervorModifier => "common/religion/fervor_modifiers/",
             #[cfg(feature = "ck3")]
@@ -1454,7 +1454,7 @@ impl Item {
             #[cfg(feature = "ck3")]
             Item::GovernmentFlag => "common/governments/",
             #[cfg(feature = "ck3")]
-            Item::GraphicalFaith => "common/religion/religions/",
+            Item::GraphicalFaith => "common/religion/religion_types/",
             #[cfg(feature = "ck3")]
             Item::GraphicalUnitType => "common/graphical_unit_types/",
             #[cfg(feature = "ck3")]
