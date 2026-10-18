@@ -68,6 +68,7 @@ pub mod menu_scenes;
 pub mod messages;
 pub mod modif;
 pub mod modifiers;
+pub mod morphemes;
 pub mod mottos;
 pub mod namelists;
 pub mod nickname;

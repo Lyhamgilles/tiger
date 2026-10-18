@@ -212,7 +212,7 @@ impl LocaEntry {
             for macrovalue in v {
                 match macrovalue {
                     MacroValue::Text(token) => vec.push(token.clone().linked(link)),
-                    MacroValue::Keyword(keyword) => {
+                    MacroValue::Keyword(keyword, _) => {
                         if let Some(entry) = from.get(keyword.as_str()) {
                             entry.used.store(true, Relaxed);
                             entry.validated.store(true, Relaxed);
@@ -291,8 +291,21 @@ pub enum LocaValue {
 #[derive(Clone, Debug)]
 pub enum MacroValue {
     Text(Token),
-    // The formatting is not stored in the enum because it's not validated.
-    Keyword(Token),
+    /// The keyword and its formatting, if any
+    Keyword(Token, Option<Token>),
+}
+
+/// Check the parts of a `|format` that refer to other items.
+/// A format like `|:rule` or `|U:rule` applies a morpheme strip rule; `roman` is built into the game.
+#[allow(unused_variables)] // only ck3 uses `format` and `data`
+fn validate_format(format: &Token, data: &Everything) {
+    #[cfg(feature = "ck3")]
+    if Game::is_ck3()
+        && let Some((_, rule)) = format.split_once(':')
+        && !rule.is("roman")
+    {
+        data.verify_exists(Item::MorphemeStripRule, &rule);
+    }
 }
 
 fn get_file_lang(filename: &OsStr) -> Option<Language> {
@@ -524,6 +537,10 @@ impl Localization {
                     return;
                 }
 
+                if let Some(format) = format {
+                    validate_format(format, data);
+                }
+
                 // TODO: datatype is not really Unknown here, it should be a CString or CFixedPoint or some kind of number.
                 // But we can't express that yet.
                 validate_datatypes(
@@ -623,7 +640,12 @@ impl Localization {
         sc: &mut ScopeContext,
         lang: Language,
     ) {
-        if matches!(entry.value, LocaValue::Macro(_)) {
+        if let LocaValue::Macro(v) = &entry.value {
+            for macrovalue in v {
+                if let MacroValue::Keyword(_, Some(format)) = macrovalue {
+                    validate_format(format, data);
+                }
+            }
             let mut new_line = Vec::new();
             let mut count = 0;
             if entry.expand_macros(&mut new_line, from, &mut count, sc, None, data) {

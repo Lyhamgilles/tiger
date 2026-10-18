@@ -379,6 +379,7 @@ pub enum Item {
     #[cfg(feature = "ck3")] MessageFilterType,
     #[cfg(feature = "ck3")] MessageGroupType,
     #[cfg(feature = "ck3")] ModifierFormat,
+    #[cfg(feature = "ck3")] MorphemeStripRule,
     #[cfg(feature = "ck3")] MottoInsert,
     #[cfg(feature = "ck3")] Motto,
     #[cfg(feature = "ck3")] NameEquivalency,
@@ -1552,6 +1553,8 @@ impl Item {
             Item::MessageGroupType => "common/message_group_types/",
             #[cfg(feature = "ck3")]
             Item::ModifierFormat => "common/modifier_definition_formats/",
+            #[cfg(feature = "ck3")]
+            Item::MorphemeStripRule => "common/morpheme_strip_rules/",
             #[cfg(feature = "ck3")]
             Item::MottoInsert => "common/dynasty_house_motto_inserts/",
             #[cfg(feature = "ck3")]
