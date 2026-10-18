@@ -1168,7 +1168,7 @@ impl Item {
             #[cfg(any(feature = "ck3", feature = "vic3", feature = "imperator"))]
             Item::LawGroup => match Game::game() {
                 #[cfg(feature = "ck3")]
-                Game::Ck3 => "common/laws/",
+                Game::Ck3 => "common/law_groups/",
                 #[cfg(feature = "imperator")]
                 Game::Imperator => "common/laws/",
                 #[cfg(feature = "vic3")]
