@@ -883,8 +883,7 @@ const TRIGGER: &[(Scopes, &str, Trigger)] = &[
     (Scopes::GreatHolyWar, "has_forced_defender", Scope(Scopes::Character)),
     (Scopes::Province, "has_free_building_slot", Boolean),
     (Scopes::Character, "has_free_council_slot", Boolean),
-    // TODO: 1.20 Item::FulfillmentParameter
-    (Scopes::Character, "has_fulfillment_parameter", UncheckedValue),
+    (Scopes::Character, "has_fulfillment_parameter", Item(Item::FulfillmentParameter)),
     (Scopes::None, "has_game_rule", Item(Item::GameRuleSetting)),
     (Scopes::Character, "has_gene", Special),
     (Scopes::None, "has_global_variable", Identifier("variable name")),
@@ -1173,8 +1172,7 @@ const TRIGGER: &[(Scopes, &str, Trigger)] = &[
     (Scopes::Province, "has_special_building_slot", Boolean),
     (Scopes::Faction, "has_special_character", Boolean),
     (Scopes::Faction, "has_special_title", Boolean),
-    // TODO: 1.20 Item::SpiritualFulfillmentType
-    (Scopes::Character, "has_spiritual_fulfillment_type", UncheckedValue),
+    (Scopes::Character, "has_spiritual_fulfillment_type", Item(Item::SpiritualFulfillmentType)),
     (Scopes::Province, "has_stationed_regiment", Boolean),
     (Scopes::Province, "has_stationed_regiment_of_base_type", Item(Item::MenAtArmsBase)),
     (Scopes::Character, "has_strong_claim_on", Scope(Scopes::LandedTitle)),
@@ -1379,11 +1377,13 @@ const TRIGGER: &[(Scopes, &str, Trigger)] = &[
     (Scopes::Character, "is_betrothed", Boolean),
     (Scopes::Character, "is_bloc_leader_or_bloc_leader_heir_of", Scope(Scopes::Character)),
     (Scopes::TravelPlan, "is_cancelled", Boolean),
-    // TODO: 1.20 source = Item::ElectionCandidateSet
     (
         Scopes::Character,
         "is_candidate_from_set",
-        Block(&[("title", Scope(Scopes::LandedTitle)), ("source", UncheckedValue)]),
+        Block(&[
+            ("title", Scope(Scopes::LandedTitle)),
+            ("source", Item(Item::ElectionCandidateSet)),
+        ]),
     ),
     (Scopes::LandedTitle, "is_capital_barony", Boolean),
     (Scopes::Character, "is_causing_raid_hostility_towards", Scope(Scopes::Character)),

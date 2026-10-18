@@ -318,6 +318,7 @@ pub enum Item {
     #[cfg(feature = "ck3")] Dynasty,
     #[cfg(feature = "ck3")] DynastyLegacy,
     #[cfg(feature = "ck3")] DynastyPerk,
+    #[cfg(feature = "ck3")] ElectionCandidateSet,
     #[cfg(feature = "ck3")] EpidemicType,
     #[cfg(feature = "ck3")] EpidemicDeathReason,
     #[cfg(feature = "ck3")] EventBackground,
@@ -331,6 +332,7 @@ pub enum Item {
     #[cfg(feature = "ck3")] FlatMapStyle,
     #[cfg(feature = "ck3")] Flavorization,
     #[cfg(feature = "ck3")] Focus,
+    #[cfg(feature = "ck3")] FulfillmentParameter,
     #[cfg(feature = "ck3")] GeneticConstraint,
     #[cfg(feature = "ck3")] GovernmentFlag,
     #[cfg(feature = "ck3")] GraphicalFaith,
@@ -373,6 +375,7 @@ pub enum Item {
     #[cfg(feature = "ck3")] MemoryType,
     #[cfg(feature = "ck3")] MenAtArms,
     #[cfg(feature = "ck3")] MenAtArmsBase,
+    #[cfg(feature = "ck3")] MenuScene,
     #[cfg(feature = "ck3")] MessageFilterType,
     #[cfg(feature = "ck3")] MessageGroupType,
     #[cfg(feature = "ck3")] ModifierFormat,
@@ -422,6 +425,7 @@ pub enum Item {
     #[cfg(feature = "ck3")] Skill,
     #[cfg(feature = "ck3")] SpecialBuilding,
     #[cfg(feature = "ck3")] SpecialGuest,
+    #[cfg(feature = "ck3")] SpiritualFulfillmentType,
     #[cfg(feature = "ck3")] Story,
     #[cfg(feature = "ck3")] Struggle,
     #[cfg(feature = "ck3")] StruggleHistory,
@@ -1427,6 +1431,8 @@ impl Item {
             #[cfg(feature = "ck3")]
             Item::DynastyPerk => "common/dynasty_perks/",
             #[cfg(feature = "ck3")]
+            Item::ElectionCandidateSet => "common/succession_election/",
+            #[cfg(feature = "ck3")]
             Item::EpidemicType => "common/epidemics/",
             #[cfg(feature = "ck3")]
             Item::EpidemicDeathReason => "common/deathreasons/",
@@ -1452,6 +1458,8 @@ impl Item {
             Item::Flavorization => "common/flavorization/",
             #[cfg(feature = "ck3")]
             Item::Focus => "common/focuses/",
+            #[cfg(feature = "ck3")]
+            Item::FulfillmentParameter => "common/spiritual_fulfillment/",
             #[cfg(feature = "ck3")]
             Item::GeneticConstraint => "common/traits/",
             #[cfg(feature = "ck3")]
@@ -1536,6 +1544,8 @@ impl Item {
             Item::MenAtArms => "common/men_at_arms_types/",
             #[cfg(feature = "ck3")]
             Item::MenAtArmsBase => "common/men_at_arms_types/",
+            #[cfg(feature = "ck3")]
+            Item::MenuScene => "common/menu_scenes/",
             #[cfg(feature = "ck3")]
             Item::MessageFilterType => "common/message_filter_types/",
             #[cfg(feature = "ck3")]
@@ -1642,6 +1652,8 @@ impl Item {
             Item::SpecialBuilding => "common/buildings/",
             #[cfg(feature = "ck3")]
             Item::SpecialGuest => "common/activities/activity_types/",
+            #[cfg(feature = "ck3")]
+            Item::SpiritualFulfillmentType => "common/spiritual_fulfillment/",
             #[cfg(feature = "ck3")]
             Item::Story => "common/story_cycles/",
             #[cfg(feature = "ck3")]
