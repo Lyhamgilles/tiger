@@ -6,20 +6,25 @@ use crate::db::{Db, DbKind};
 use crate::desc::validate_desc;
 use crate::everything::Everything;
 use crate::game::GameFlags;
-use crate::helpers::stringify_choices;
+use crate::helpers::{TigerHashMap, stringify_choices};
 use crate::item::{Item, ItemLoader};
 use crate::modif::validate_modifs;
-use crate::report::{ErrorKey, err};
+use crate::report::{ErrorKey, err, warn};
 use crate::scopes::Scopes;
 use crate::token::Token;
 use crate::tooltipped::Tooltipped;
 use crate::validator::Validator;
 
 #[derive(Clone, Debug)]
+pub struct DoctrineCategory {}
+#[derive(Clone, Debug)]
 pub struct DoctrineGroup {}
 #[derive(Clone, Debug)]
 pub struct Doctrine {}
 
+inventory::submit! {
+    ItemLoader::Normal(GameFlags::Ck3, Item::DoctrineCategory, DoctrineCategory::add)
+}
 inventory::submit! {
     ItemLoader::Normal(GameFlags::Ck3, Item::DoctrineGroup, DoctrineGroup::add)
 }
@@ -27,6 +32,11 @@ inventory::submit! {
     ItemLoader::Normal(GameFlags::Ck3, Item::Doctrine, Doctrine::add)
 }
 
+impl DoctrineCategory {
+    pub fn add(db: &mut Db, key: Token, block: Block) {
+        db.add(Item::DoctrineCategory, key, block, Box::new(Self {}));
+    }
+}
 impl DoctrineGroup {
     pub fn add(db: &mut Db, key: Token, block: Block) {
         db.add(Item::DoctrineGroup, key, block, Box::new(Self {}));
@@ -35,6 +45,19 @@ impl DoctrineGroup {
 impl Doctrine {
     pub fn add(db: &mut Db, key: Token, block: Block) {
         db.add(Item::Doctrine, key, block, Box::new(Self {}));
+    }
+}
+
+impl DbKind for DoctrineCategory {
+    fn validate(&self, key: &Token, block: &Block, data: &Everything) {
+        let mut vd = Validator::new(block, data);
+
+        let loca = format!("doctrine_category_{key}");
+        data.verify_exists_implied(Item::Localization, &loca, key);
+
+        vd.field_bool("visible");
+        vd.field_integer("sort_order");
+        vd.field_list("gui_tags");
     }
 }
 
@@ -47,12 +70,18 @@ impl DbKind for DoctrineGroup {
 
         data.verify_icon("NGameIcons|DOCTRINE_GROUP_TYPE_ICON_PATH", key, ".dds");
 
-        vd.field_value("category");
+        vd.field_item("category", Item::DoctrineCategory);
+        vd.field_bool("main_rite");
+        vd.field_choice("divergence", &["category", "sequence"]);
+        vd.field_choice("doctrine_lock", &["none", "rite", "faith", "religion"]);
 
-        vd.field_integer("number_of_picks");
+        vd.advice_field("number_of_picks", "removed in 1.20");
         vd.field_trigger_rooted("is_available_on_create", Tooltipped::No, Scopes::Faith);
 
-        vd.field_list_items("doctrine_types", Item::Doctrine);
+        vd.advice_field(
+            "doctrine_types",
+            "removed in 1.20; doctrines now name their group with `doctrine_group_type`",
+        );
     }
 }
 
@@ -65,23 +94,22 @@ impl DbKind for Doctrine {
         _data: &Everything,
     ) -> bool {
         if property == "unreformed"
-            && let Some(parameters) = block.get_field_block("parameters")
+            && let Some(special) = block.get_field_block("special_parameters")
         {
-            for (key, _) in parameters.iter_assignments() {
-                if key.is("unreformed") {
-                    return true;
-                }
-            }
+            return special.field_value_is("unreformed", "yes");
         }
         false
     }
 
     fn add_subitems(&self, _key: &Token, block: &Block, db: &mut Db) {
         if let Some(block) = block.get_field_block("parameters") {
-            for (key, value) in block.iter_assignments() {
-                if value.is("yes") || value.is("no") {
-                    db.add_flag(Item::DoctrineBooleanParameter, key.clone());
-                }
+            for token in block.iter_values() {
+                db.add_flag(Item::DoctrineBooleanParameter, token.clone());
+                db.add_flag(Item::DoctrineParameter, token.clone());
+            }
+            // undocumented
+            for (key, _) in block.iter_assignments() {
+                db.add_flag(Item::DoctrineBooleanParameter, key.clone());
                 db.add_flag(Item::DoctrineParameter, key.clone());
             }
         }
@@ -89,8 +117,15 @@ impl DbKind for Doctrine {
 
     fn validate(&self, key: &Token, block: &Block, data: &Everything) {
         let mut vd = Validator::new(block, data);
+        // `selected_doctrines` holds the selected core tenets and doctrines
+        let selected = Scopes::Doctrine | Scopes::Tenet;
         let mut sc = ScopeContext::new(Scopes::Faith, key);
-        sc.define_list("selected_doctrines", Scopes::Doctrine, key);
+        sc.define_list("selected_doctrines", selected, key);
+        let mut can_pick_sc = ScopeContext::new(Scopes::Faith, key);
+        can_pick_sc.define_name("actor", Scopes::Character, key);
+        can_pick_sc.define_list("selected_doctrines", selected, key);
+        let mut rite_sc = ScopeContext::new(Scopes::Rite, key);
+        rite_sc.define_list("selected_doctrines", selected, key);
 
         let icon = vd.field_value("icon").unwrap_or(key);
         data.verify_icon("NGameIcons|DOCTRINE_TYPE_ICON_PATH", icon, ".dds");
@@ -100,16 +135,27 @@ impl DbKind for Doctrine {
             data.verify_exists_implied(Item::Localization, &loca, key);
         }
 
+        if !vd.field_validated_sc("descriptive_name", &mut sc, validate_desc) {
+            let loca = format!("{key}_descriptive_name");
+            data.mark_used(Item::Localization, &loca);
+        }
+
         if !vd.field_validated_sc("desc", &mut sc, validate_desc) {
             let loca = format!("{key}_desc");
             data.verify_exists_implied(Item::Localization, &loca, key);
         }
 
+        vd.field_validated_sc("historical_glossary", &mut sc, validate_desc);
+
         vd.field_bool("visible");
+        vd.field_numeric("divergence");
+        vd.req_field("doctrine_group_type");
+        vd.field_item("doctrine_group_type", Item::DoctrineGroup);
+        vd.field_integer("index");
         vd.field_validated_block("parameters", validate_parameters);
-        vd.field_script_value("piety_cost", &mut sc);
+        vd.field_script_value("piety_cost", &mut rite_sc);
         vd.field_trigger("is_shown", Tooltipped::No, &mut sc);
-        vd.field_trigger("can_pick", Tooltipped::Yes, &mut sc);
+        vd.field_trigger("can_pick", Tooltipped::Yes, &mut can_pick_sc);
 
         vd.field_validated_block("character_modifier", |block, data| {
             let mut vd = Validator::new(block, data);
@@ -117,32 +163,64 @@ impl DbKind for Doctrine {
             validate_modifs(block, data, ModifKinds::Character, vd);
         });
 
-        // Not documented, but used in vanilla
         vd.field_validated_block("clergy_modifier", |block, data| {
             let vd = Validator::new(block, data);
             validate_modifs(block, data, ModifKinds::Character, vd);
         });
 
-        // In the docs but not used in vanilla
-        vd.field_validated_block("doctrine_character_modifier", |block, data| {
-            let mut vd = Validator::new(block, data);
-            vd.field_item("doctrine", Item::Doctrine);
-            validate_modifs(block, data, ModifKinds::Character, vd);
-        });
+        vd.advice_field("doctrine_character_modifier", "removed in 1.20");
 
         vd.field_validated_block("traits", validate_traits);
+        vd.field_validated_block("special_parameters", validate_special_parameters);
     }
 }
 
 fn validate_parameters(block: &Block, data: &Everything) {
     let mut vd = Validator::new(block, data);
-
-    vd.unknown_value_fields(|_, value| {
-        if value.is("yes") || value.is("no") {
-            return;
+    vd.values();
+    // `parameter = yes` is undocumented, but works (verified in 1.20.1)
+    vd.unknown_value_fields(|key, value| {
+        if !value.is("yes") {
+            let msg = format!("unexpected value for doctrine parameter `{key}`");
+            let info = "since 1.20, parameters are a list of names; special values such as `number_of_spouses` go in `special_parameters`";
+            warn(ErrorKey::Validation).msg(msg).info(info).loc(value).push();
         }
-        value.expect_number();
     });
+}
+
+/// Check that no doctrine is listed twice, and that no two doctrines are from the same group
+pub fn validate_doctrine_groups(doctrines: &[Token], data: &Everything) {
+    let mut groups: TigerHashMap<&str, &Token> = TigerHashMap::default();
+    for (i, doctrine) in doctrines.iter().enumerate() {
+        if let Some(other) = doctrines[..i].iter().find(|&d| d == doctrine) {
+            let msg = format!("duplicate doctrine {doctrine}");
+            warn(ErrorKey::DuplicateField)
+                .msg(msg)
+                .loc(doctrine)
+                .loc_msg(other, "earlier doctrine")
+                .push();
+            continue;
+        }
+        let Some((_, block)) = data.database.get_key_block(Item::Doctrine, doctrine.as_str())
+        else {
+            continue;
+        };
+        let Some(group) = block.get_field_value("doctrine_group_type") else {
+            continue;
+        };
+        if let Some(other) = groups.get(group.as_str()) {
+            let msg = format!("{doctrine} and {other} are both from {group}");
+            let info = format!("{group} only allows 1 pick");
+            err(ErrorKey::Conflict)
+                .msg(msg)
+                .info(info)
+                .loc(doctrine)
+                .loc_msg(*other, "earlier doctrine")
+                .push();
+        } else {
+            groups.insert(group.as_str(), doctrine);
+        }
+    }
 }
 
 const HOSTILITY_LEVELS: &[&str] = &["righteous", "astray", "hostile", "evil"];

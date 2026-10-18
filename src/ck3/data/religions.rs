@@ -1,4 +1,5 @@
 use crate::block::{BV, Block};
+use crate::ck3::data::doctrines::validate_doctrine_groups;
 use crate::ck3::tables::misc::CUSTOM_RELIGION_LOCAS;
 use crate::ck3::validate::validate_traits;
 use crate::context::ScopeContext;
@@ -6,9 +7,8 @@ use crate::db::{Db, DbKind};
 use crate::everything::Everything;
 use crate::fileset::FileKind;
 use crate::game::GameFlags;
-use crate::helpers::TigerHashMap;
 use crate::item::{Item, ItemLoader};
-use crate::report::{ErrorKey, err, warn};
+use crate::report::{ErrorKey, warn};
 use crate::scopes::Scopes;
 use crate::token::Token;
 use crate::tooltipped::Tooltipped;
@@ -76,7 +76,7 @@ impl DbKind for Religion {
         vd.req_field("family");
         vd.field_item("family", Item::ReligionFamily);
 
-        validate_doctrines("religion", data, &mut vd);
+        validate_doctrines(data, &mut vd);
 
         vd.field_icon("doctrine_background_icon", "NGameIcons|FAITH_DOCTRINE_BACKGROUND_PATH", "");
         validate_piety_icon_group(vd.field_value("piety_icon_group"), data);
@@ -115,60 +115,13 @@ impl DbKind for Religion {
     }
 }
 
-fn validate_doctrines(iname: &str, data: &Everything, vd: &mut Validator) {
-    // TODO: maybe cache doctrine_types and number_of_picks,
-    // though the cache might only make sense if done globally instead of per religion/faith.
-    let mut groups: TigerHashMap<&str, Vec<Token>> = TigerHashMap::default();
+fn validate_doctrines(data: &Everything, vd: &mut Validator) {
+    let mut doctrines = Vec::new();
     vd.multi_field_validated_value("doctrine", |_, mut vd| {
         vd.item(Item::Doctrine);
-        let doctrine = vd.value();
-        for (group, block) in data.database.iter_key_block(Item::DoctrineGroup) {
-            if let Some(doctrines) = block.get_field_block("doctrine_types") {
-                if !doctrines.iter_values().any(|t| t == doctrine) {
-                    continue;
-                }
-            } else {
-                continue;
-            }
-
-            if let Some(seen) = groups.get_mut(group.as_str()) {
-                let picks_token = block.get_field_value("number_of_picks");
-                let picks = picks_token.and_then(Token::get_integer).unwrap_or(1);
-                #[allow(clippy::cast_possible_wrap)]
-                if let Some(other_doctrine) = seen.iter().find(|&d| d == doctrine) {
-                    let msg = format!("duplicate doctrine {doctrine}");
-                    warn(ErrorKey::DuplicateField)
-                        .msg(msg)
-                        .loc(doctrine)
-                        .loc_msg(other_doctrine, "earlier doctrine")
-                        .push();
-                } else if picks == 1 {
-                    // SAFETY: we never push empty vecs into this hash
-                    let other_doctrine = &seen[0];
-                    let msg = format!("{doctrine} and {other_doctrine} are both from {group}");
-                    let info = format!("{group} only allows 1 pick");
-                    err(ErrorKey::Conflict)
-                        .msg(msg)
-                        .info(info)
-                        .loc(doctrine)
-                        .loc_msg(other_doctrine, "earlier doctrine")
-                        .push();
-                } else if picks == (seen.len() as i64) {
-                    let msg = format!("{iname} has more than {picks} doctrines from {group}");
-                    // SAFETY: picks_token can be unwrapped because Some(Token) is the only
-                    // way to get picks > 1
-                    err(ErrorKey::Conflict)
-                        .msg(msg)
-                        .loc(doctrine)
-                        .loc_msg(picks_token.unwrap(), "picks")
-                        .push();
-                }
-                seen.push(doctrine.clone());
-            } else {
-                groups.insert(group.as_str(), vec![doctrine.clone()]);
-            }
-        }
+        doctrines.push(vd.value().clone());
     });
+    validate_doctrine_groups(&doctrines, data);
 
     vd.multi_field_validated_block("doctrine_selection_pair", |block, data| {
         let mut vd = Validator::new(block, data);
@@ -278,7 +231,7 @@ impl DbKind for Faith {
         vd.field_item("religious_head", Item::Title);
         vd.req_field("holy_site");
         vd.multi_field_item("holy_site", Item::HolySite);
-        validate_doctrines("faith", data, &mut vd);
+        validate_doctrines(data, &mut vd);
 
         vd.field_list("reserved_male_names");
         vd.field_list("reserved_female_names");

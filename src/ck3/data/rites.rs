@@ -1,4 +1,5 @@
 use crate::block::Block;
+use crate::ck3::data::doctrines::validate_doctrine_groups;
 use crate::ck3::data::religions::validate_localization;
 use crate::context::ScopeContext;
 use crate::db::{Db, DbKind};
@@ -72,8 +73,10 @@ impl DbKind for RiteType {
         vd.field_bool("create");
         vd.field_bool("history");
         vd.field_list_items("tenets", Item::Tenet);
-        // TODO: 1.20 check that the doctrines are from different doctrine groups
         vd.field_list_items("doctrines", Item::Doctrine);
+        if let Some(doctrines) = block.get_field_list("doctrines") {
+            validate_doctrine_groups(&doctrines, data);
+        }
         vd.multi_field_validated_block("tenet_selection_pair", |block, data| {
             let mut vd = Validator::new(block, data);
             vd.req_field("requires_dlc_flag");
