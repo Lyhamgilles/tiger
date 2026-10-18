@@ -1,6 +1,6 @@
 //! Miscellaneous tables used to back `Item` variants.
 
-// LAST UPDATED CK3 VERSION 1.16
+// LAST UPDATED CK3 VERSION 1.20.1
 // Taken from common/character_interactions/_character_interactions.info
 pub const AI_TARGETS: &[&str] = &[
     "known_secrets",
@@ -47,6 +47,102 @@ pub const AI_TARGETS: &[&str] = &[
     "situation_participant_group",
     // undocumented
     "diarch",
+    "other_faith_heads",
+    "head_of_rite",
+    "subordinates",
+    "superior",
+    "top_superior",
+    "realm_priest_superior",
+    "realm_priest_top_superior",
+    "faith_holy_order_leaders",
+    "rulers_in_clerical_region",
+    "clerical_region_rulers_in_realm",
+    "puppets",
+    "religious_head_challenger",
+    "religious_head_challengers",
+    "papabile",
+];
+
+// LAST UPDATED CK3 VERSION 1.20.1
+// Taken from common/character_interactions/_character_interactions.info
+pub const TARGET_FILTERS: &[&str] = &[
+    "clerical_region",
+    "realm_clerical_regions",
+    "domain_clerical_regions",
+    "faith_clerical_regions",
+    "religious_head_titles",
+    "clerical_region_adjacent_duchies",
+    "adjacent_clerical_regions",
+    "clerical_elector_titles",
+    "domain_titles",
+    "domain_titles_including_leases",
+    "domain_titles_all_baronies",
+    "dejure_titles",
+    "realm_titles",
+    "realm_counties",
+    "counties_of_faith",
+    "artifacts",
+    "artifacts_claimable",
+    "lessee_titles",
+    "top_liege_de_jure_titles",
+    "faith_holy_order_titles",
+    "papabile",
+    "claimed_titles",
+    "men_at_arms",
+    "personal_maa",
+    "title_maa",
+];
+
+// LAST UPDATED CK3 VERSION 1.20.1
+// The docs say these old types still work, but should no longer be used.
+// Each is equivalent to a new `target_filter` with a `target_source`.
+pub const OLD_TARGET_FILTERS: &[(&str, &str, &str)] = &[
+    ("actor_domain_titles", "domain_titles", "actor"),
+    ("recipient_domain_titles", "domain_titles", "recipient"),
+    ("secondary_actor_domain_titles", "domain_titles", "secondary_actor"),
+    ("secondary_recipient_domain_titles", "domain_titles", "secondary_recipient"),
+    ("actor_domain_titles_including_leases", "domain_titles_including_leases", "actor"),
+    ("recipient_domain_titles_including_leases", "domain_titles_including_leases", "recipient"),
+    (
+        "secondary_actor_domain_titles_including_leases",
+        "domain_titles_including_leases",
+        "secondary_actor",
+    ),
+    (
+        "secondary_recipient_domain_titles_including_leases",
+        "domain_titles_including_leases",
+        "secondary_recipient",
+    ),
+    ("actor_de_jure_titles", "dejure_titles", "actor"),
+    ("recipient_de_jure_titles", "dejure_titles", "recipient"),
+    ("secondary_actor_de_jure_titles", "dejure_titles", "secondary_actor"),
+    ("secondary_recipient_de_jure_titles", "dejure_titles", "secondary_recipient"),
+    ("actor_realm_titles", "realm_titles", "actor"),
+    ("recipient_realm_titles", "realm_titles", "recipient"),
+    ("secondary_actor_realm_titles", "realm_titles", "secondary_actor"),
+    ("secondary_recipient_realm_titles", "realm_titles", "secondary_recipient"),
+    ("actor_lessee_titles", "lessee_titles", "actor"),
+    ("recipient_lessee_titles", "lessee_titles", "recipient"),
+    ("secondary_actor_lessee_titles", "lessee_titles", "secondary_actor"),
+    ("secondary_recipient_lessee_titles", "lessee_titles", "secondary_recipient"),
+    ("actor_top_liege_de_jure_titles", "top_liege_de_jure_titles", "actor"),
+    ("recipient_top_liege_de_jure_titles", "top_liege_de_jure_titles", "recipient"),
+    ("secondary_actor_top_liege_de_jure_titles", "top_liege_de_jure_titles", "secondary_actor"),
+    (
+        "secondary_recipient_top_liege_de_jure_titles",
+        "top_liege_de_jure_titles",
+        "secondary_recipient",
+    ),
+    ("actor_artifacts", "artifacts", "actor"),
+    ("recipient_artifacts", "artifacts", "recipient"),
+    ("actor_artifacts_claimable", "artifacts_claimable", "actor"),
+    ("recipient_artifacts_claimable", "artifacts_claimable", "recipient"),
+    ("actor_maa", "men_at_arms", "actor"),
+    ("recipient_maa", "men_at_arms", "recipient"),
+    ("actor_personal_maa", "personal_maa", "actor"),
+    ("recipient_personal_maa", "personal_maa", "recipient"),
+    ("actor_title_maa", "title_maa", "actor"),
+    ("recipient_title_maa", "title_maa", "recipient"),
 ];
 
 // LAST UPDATED CK3 VERSION 1.11.3

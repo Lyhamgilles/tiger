@@ -1,4 +1,5 @@
 use crate::block::{BV, Block};
+use crate::ck3::tables::misc::{OLD_TARGET_FILTERS, TARGET_FILTERS};
 use crate::ck3::validate::{
     validate_ai_targets, validate_cost, validate_quick_trigger, validate_theme_background,
 };
@@ -43,6 +44,7 @@ impl DbKind for CharacterInteraction {
         sc.define_name("secondary_actor", Scopes::Character, key);
         sc.define_name("secondary_recipient", Scopes::Character, key);
         sc.define_name("intermediary", Scopes::Character, key);
+        sc.define_name("puppet_or_actor", Scopes::Character, key); // undocumented
         // TODO: figure out if there's a better way than exhaustively matching on "interface" and "special_interaction"
         if let Some(target_type) = block.get_field_value("target_type") {
             if target_type.is("artifact") {
@@ -111,8 +113,9 @@ impl DbKind for CharacterInteraction {
         if !vd.multi_field_validated_sc("icon", &mut sc, validate_icon) {
             data.mark_used_icon("NGameIcons|CHARACTER_INTERACTION_ICON_PATH", key, ".dds");
         }
-        vd.field_icon("alert_icon", "NGameIcons|CHARACTER_INTERACTION_ICON_PATH", ".dds");
-        vd.field_icon("icon_small", "NGameIcons|CHARACTER_INTERACTION_ICON_PATH", ".dds");
+        data.mark_used_icon("NGameIcons|CHARACTER_INTERACTION_ALERT_PATH", key, ".dds");
+        vd.advice_field("alert_icon", "removed in 1.20");
+        vd.advice_field("icon_small", "removed in 1.20");
 
         vd.field_validated_key("override_background", |key, bv, data| {
             let mut sc = ScopeContext::new(Scopes::Character, key);
@@ -246,11 +249,12 @@ impl DbKind for CharacterInteraction {
             vd.field_trigger("can_be_changed", Tooltipped::No, &mut sc.clone());
             vd.field_validated_sc("current_description", &mut sc.clone(), validate_desc);
             vd.field_bool("can_invalidate_interaction");
+            vd.field_script_value("scheme_preview_success_chance", &mut sc);
+            vd.field_script_value("scheme_preview_success_chance_max", &mut sc);
+            vd.field_script_value("scheme_preview_secrecy", &mut sc);
 
             // undocumented
 
-            vd.field_script_value("scheme_preview_success_chance", &mut sc);
-            vd.field_script_value("scheme_preview_success_chance_max", &mut sc);
             vd.field_script_value("scheme_preview_speed", &mut sc);
         });
 
@@ -340,9 +344,35 @@ impl DbKind for CharacterInteraction {
 
         vd.field_choice(
             "target_type",
-            &["artifact", "title", "men_at_arms", "court_position_type", "count"],
+            &["artifact", "title", "men_at_arms", "court_position_type"],
         );
-        vd.field_value("target_filter"); // TODO
+        vd.field_choice(
+            "target_source",
+            &[
+                "actor",
+                "secondary_actor",
+                "recipient",
+                "secondary_recipient",
+                "intermediary",
+                "puppet_or_actor",
+            ],
+        );
+        vd.field_validated_value("target_filter", |_, mut vd| {
+            if let Some((_, filter, source)) =
+                OLD_TARGET_FILTERS.iter().find(|(old, _, _)| vd.value().is(old))
+            {
+                let msg = format!(
+                    "should use `target_filter = {filter}` with `target_source = {source}` instead of `{}`",
+                    vd.value()
+                );
+                warn(ErrorKey::Deprecated).msg(msg).loc(vd.value()).push();
+                vd.accept();
+            } else {
+                vd.choice(TARGET_FILTERS);
+            }
+        });
+        vd.field_bool("show_all_targets");
+        vd.field_bool("show_two_characters");
 
         // root is the character being picked
         vd.field_validated_block_rerooted(
@@ -357,15 +387,17 @@ impl DbKind for CharacterInteraction {
         vd.field_trigger("can_be_picked_artifact", Tooltipped::Yes, &mut sc.clone());
         vd.field_trigger("can_be_picked_regiment", Tooltipped::Yes, &mut sc.clone());
 
+        if let Some(key) = block.get_key("needs_confirmation") {
+            let msg = "`needs_confirmation` is deprecated";
+            let info = "the docs say it will be removed, because it lets interactions change the game state without asking the player";
+            warn(ErrorKey::Deprecated).msg(msg).info(info).loc(key).push();
+        }
         vd.field_trigger("needs_confirmation", Tooltipped::No, &mut sc.clone());
 
         // Experimentation showed that even the cost block has scope none
         vd.field_validated_block_rerooted("cost", &sc, Scopes::None, validate_cost);
 
         vd.field_list("filter_tags");
-
-        // undocumented
-
         vd.field_bool("shows_military_strength");
     }
 }
