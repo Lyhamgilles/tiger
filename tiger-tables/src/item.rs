@@ -325,6 +325,7 @@ pub enum Item {
     #[cfg(feature = "ck3")] EventTransition,
     #[cfg(feature = "ck3")] Faction,
     #[cfg(feature = "ck3")] Faith,
+    #[cfg(feature = "ck3")] FaithHistory,
     #[cfg(feature = "ck3")] FaithIcon,
     #[cfg(feature = "ck3")] FervorModifier,
     #[cfg(feature = "ck3")] FlatMapStyle,
@@ -1436,6 +1437,8 @@ impl Item {
             Item::Faction => "common/factions/",
             #[cfg(feature = "ck3")]
             Item::Faith => "common/religion/faith_types/",
+            #[cfg(feature = "ck3")]
+            Item::FaithHistory => "history/faiths/",
             #[cfg(feature = "ck3")]
             Item::FaithIcon => "common/religion/religions/",
             #[cfg(feature = "ck3")]
