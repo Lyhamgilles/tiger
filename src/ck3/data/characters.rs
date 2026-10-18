@@ -177,8 +177,8 @@ impl Characters {
         self.characters.get(id.as_str()).and_then(|ch| ch.get_culture(date))
     }
 
-    pub fn get_faith(&self, id: &Token, date: Date) -> Option<&Token> {
-        self.characters.get(id.as_str()).and_then(|ch| ch.get_faith(date))
+    pub fn get_rite(&self, id: &Token, date: Date) -> Option<&Token> {
+        self.characters.get(id.as_str()).and_then(|ch| ch.get_rite(date))
     }
 
     pub fn validate(&self, data: &Everything) {
@@ -344,10 +344,8 @@ impl Character {
         self.block.get_field_value_at_date("culture", date)
     }
 
-    pub fn get_faith(&self, date: Date) -> Option<&Token> {
-        self.block
-            .get_field_value_at_date("faith", date)
-            .or_else(|| self.block.get_field_value_at_date("religion", date))
+    pub fn get_rite(&self, date: Date) -> Option<&Token> {
+        self.block.get_field_value_at_date("rite", date)
     }
 
     fn validate_life_event(

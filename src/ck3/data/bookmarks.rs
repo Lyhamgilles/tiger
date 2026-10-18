@@ -8,7 +8,7 @@ use crate::everything::Everything;
 use crate::game::GameFlags;
 use crate::item::{Item, ItemLoader, LoadAsFile, Recursive};
 use crate::pdxfile::PdxEncoding;
-use crate::report::{ErrorKey, fatal, warn};
+use crate::report::{ErrorKey, err, fatal, warn};
 use crate::scopes::Scopes;
 use crate::token::Token;
 use crate::validator::Validator;
@@ -50,7 +50,14 @@ impl DbKind for Bookmark {
     fn validate(&self, key: &Token, block: &Block, data: &Everything) {
         let mut vd = Validator::new(block, data);
         let mut sc = ScopeContext::new(Scopes::None, key);
-        vd.req_field("start_date");
+        // The docs say the group's `default_start_date` is used if this is not set
+        let group_start_date = block
+            .get_field_value("group")
+            .and_then(|group| data.database.get_key_block(Item::BookmarkGroup, group.as_str()))
+            .and_then(|(_, block)| block.get_field_date("default_start_date"));
+        if group_start_date.is_none() {
+            vd.req_field("start_date");
+        }
         vd.field_date("start_date");
         vd.field_bool("is_playable");
         vd.field_bool("recommended");
@@ -69,7 +76,7 @@ impl DbKind for Bookmark {
         let pathname = format!("gfx/interface/icons/bookmark_buttons/{key}.dds");
         data.verify_exists_implied(Item::File, &pathname, key);
 
-        let start_date = block.get_field_date("start_date");
+        let start_date = block.get_field_date("start_date").or(group_start_date);
         vd.multi_field_validated_block("character", |block, data| {
             if let Some(name) = block.get_field_value("name") {
                 let pathname = format!("gfx/interface/bookmarks/{key}_{name}.dds");
@@ -111,6 +118,11 @@ fn validate_bookmark_character(
             let loca = format!("{token}_desc");
             data.verify_exists_implied(Item::Localization, &loca, token);
         }
+        vd.req_field("difficulty");
+        vd.req_field("government");
+        if !block.has_key("target_title") {
+            vd.req_field("title");
+        }
     } else {
         vd.field_item("relation", Item::Localization);
     }
@@ -125,6 +137,14 @@ fn validate_bookmark_character(
         warn(ErrorKey::MissingItem).msg(msg).info(info).loc(token).push();
     }
     vd.field_integer("dynasty_splendor_level");
+    // The docs say it must be above 0 if the character has a dynasty
+    if let Some(level) = block.get_field_value("dynasty_splendor_level")
+        && (block.has_key("dynasty") || block.has_key("dynasty_house"))
+        && level.get_integer().is_some_and(|level| level <= 0)
+    {
+        let msg = "`dynasty_splendor_level` must be above 0 for a character with a dynasty";
+        err(ErrorKey::Range).msg(msg).loc(level).push();
+    }
     vd.field_choice("type", &["male", "female", "boy", "girl"]);
     vd.field_date("birth");
     vd.field_item("title", Item::Title);
@@ -132,11 +152,8 @@ fn validate_bookmark_character(
     vd.field_item("government", Item::GovernmentType);
     vd.field_item("fallback_government", Item::GovernmentType);
     vd.field_item("culture", Item::Culture);
-    if existing_ruler {
-        vd.field_item("religion", Item::Faith);
-    } else {
-        vd.field_item("religion", Item::Localization);
-    }
+    // The docs say this is the localization key of the religion shown
+    vd.field_item("religion", Item::Localization);
     vd.field_item("difficulty", Item::Localization);
     vd.field_item("history_id", Item::Character);
     vd.field_item("animation", Item::PortraitAnimation);
@@ -144,8 +161,11 @@ fn validate_bookmark_character(
         let mut vd = Validator::new(block, data);
         vd.req_tokens_integers_exactly(2);
     });
-    // TODO: acceptable values?
-    vd.field_value("character_design_type");
+    vd.field_choice(
+        "character_design_type",
+        &["default", "landless_adventurer", "noble_family", "none"],
+    );
+    vd.replaced_field("bookmark_type", "`character_design_type`");
     vd.field_item("target_title", Item::Title);
     if let Some(start_date) = start_date
         && let Some(id) = block.get_field_value("history_id")
@@ -173,13 +193,18 @@ fn validate_bookmark_character(
                 data.characters.get_culture(id, start_date),
                 name,
             );
-            validate_bookmark_against_history(
-                block.get_field_value("faith"),
-                "faith",
-                start_date,
-                data.characters.get_faith(id, start_date),
-                name,
-            );
+            // `religion` is a loc key, but vanilla uses the key of the character's rite
+            if let Some(religion) = block.get_field_value("religion")
+                && data.item_exists(Item::RiteType, religion.as_str())
+            {
+                validate_bookmark_against_history(
+                    Some(religion),
+                    "rite",
+                    start_date,
+                    data.characters.get_rite(id, start_date),
+                    name,
+                );
+            }
         }
     }
     vd.multi_field_validated_block("character", |block, data| {
@@ -283,8 +308,6 @@ impl DbKind for ChallengeCharacter {
         vd.field_validated_block("character", |block, data| {
             validate_bookmark_character(block, data, true, start_date);
         });
-
-        // undocumented
 
         vd.field_list("achievements"); // TODO: validate achievements?
     }
