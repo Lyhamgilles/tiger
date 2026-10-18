@@ -77,6 +77,7 @@ pub mod prov_effects;
 pub mod prov_history;
 pub mod prov_terrain;
 pub mod provinces;
+pub mod puppets;
 pub mod raids;
 pub mod regions;
 pub mod relations;

@@ -392,6 +392,8 @@ pub enum Item {
     #[cfg(feature = "ck3")] ProjectContribution,
     #[cfg(feature = "ck3")] ProvinceEffect,
     #[cfg(feature = "ck3")] ProvinceMapping,
+    #[cfg(feature = "ck3")] PuppetAction,
+    #[cfg(feature = "ck3")] PuppetType,
     #[cfg(feature = "ck3")] RaidIntent,
     #[cfg(feature = "ck3")] Relation,
     #[cfg(feature = "ck3")] RelationFlag,
@@ -1569,6 +1571,10 @@ impl Item {
             Item::ProvinceEffect => "gfx/map/province_effects/",
             #[cfg(feature = "ck3")]
             Item::ProvinceMapping => "history/province_mapping/",
+            #[cfg(feature = "ck3")]
+            Item::PuppetAction => "common/puppets/actions/",
+            #[cfg(feature = "ck3")]
+            Item::PuppetType => "common/puppets/types/",
             #[cfg(feature = "ck3")]
             Item::PrisonType => "",
             #[cfg(feature = "ck3")]

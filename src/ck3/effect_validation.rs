@@ -2824,8 +2824,7 @@ pub fn validate_set_puppet(
     vd.req_field("target");
     vd.field_target("target", sc, Scopes::Character);
     vd.req_field("type");
-    // TODO: 1.20 field_item with Item::PuppetType
-    vd.field_value("type");
+    vd.field_item("type", Item::PuppetType);
 }
 
 pub fn validate_set_tenet_status(

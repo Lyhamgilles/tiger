@@ -441,8 +441,7 @@ const SCOPE_PREFIX: &[(Scopes, &str, Scopes, ArgumentValue)] = {
             Item(Item::SubjectContractObligationLevel),
         ),
         (Scopes::None, "province", Scopes::Province, Item(Item::Province)),
-        // TODO: 1.20 Item::PuppetType once common/puppets/types is loaded
-        (Scopes::Character, "puppet", Scopes::Character, UncheckedValue),
+        (Scopes::Character, "puppet", Scopes::Character, Item(Item::PuppetType)),
         (Scopes::None, "religion", Scopes::Religion, Item(Item::Religion)),
         // TODO: also accept faith keys: a faith without scripted rites gets a dynamic rite with
         // the faith's key.

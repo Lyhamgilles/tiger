@@ -1110,8 +1110,7 @@ const TRIGGER: &[(Scopes, &str, Trigger)] = &[
         "has_province_with_epidemic",
         Block(&[("+intensity", CompareChoice(&["any", "minor", "major", "apocalyptic"]))]),
     ),
-    // TODO: 1.20 Item::PuppetType
-    (Scopes::Character, "has_puppet_type", UncheckedValue),
+    (Scopes::Character, "has_puppet_type", Item(Item::PuppetType)),
     (Scopes::Character, "has_raid_immunity_against", Scope(Scopes::Character)),
     (Scopes::Character, "has_raised_armies", Boolean),
     (Scopes::Character, "has_realm_law", Item(Item::Law)),
@@ -1619,10 +1618,8 @@ const TRIGGER: &[(Scopes, &str, Trigger)] = &[
     (Scopes::Character, "is_powerful_vassal_of", Scope(Scopes::Character)),
     (Scopes::Character, "is_pregnant", Boolean),
     (Scopes::Character, "is_primary_heir_of", Scope(Scopes::Character)),
-    // TODO: 1.20 Item::PuppetAction
-    (Scopes::Character, "is_puppet_action_valid", UncheckedValue),
-    // TODO: 1.20 Item::PuppetType
-    (Scopes::Character, "is_puppet_of_type", UncheckedValue),
+    (Scopes::Character, "is_puppet_action_valid", Item(Item::PuppetAction)),
+    (Scopes::Character, "is_puppet_of_type", Item(Item::PuppetType)),
     (Scopes::Army, "is_raid_army", Boolean),
     (Scopes::Province, "is_raided", Boolean),
     (Scopes::Regiment, "is_raised", Boolean),
