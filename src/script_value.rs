@@ -118,6 +118,11 @@ fn validate_inner(
                     let msg = "expected yes, no, floor, or ceiling";
                     warn(ErrorKey::Validation).msg(msg).loc(value).push();
                 }
+                if Game::is_ck3() && value.is("no") {
+                    let msg = format!("`{token} = no` still applies `{token}`");
+                    let info = "the docs say the value is ignored, so remove the line instead";
+                    warn(ErrorKey::Logic).msg(msg).info(info).loc(value).push();
+                }
                 made_changes = true;
                 saved_value = false;
             }
