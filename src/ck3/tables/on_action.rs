@@ -262,7 +262,7 @@ pub const ON_ACTION_SCOPES: &str = "
 
 	on_tradition_removed = {
 		root = culture
-		tradition = flag  # TODO: verify scope type
+		tradition = culture_tradition
 	}
 	on_tradition_added = on_tradition_removed
 	on_culture_created = {
@@ -279,7 +279,7 @@ pub const ON_ACTION_SCOPES: &str = "
 	on_death = {
 		root = character
 		killer = character # may be unset
-		death_reason = flag # TODO: verify scope type
+		death_reason = flag
 		artifact = artifact # may be unset
 	}
 	on_natural_death_second_chance = {

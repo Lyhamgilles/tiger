@@ -137,7 +137,7 @@ impl DbKind for Decision {
         });
         check_cost(&block.get_field_blocks("minimum_cost"));
 
-        // TODO: verify scope:puppeteer. The docs don't give it to the effect.
+        // undocumented scope:puppeteer
         vd.field_effect("effect", Tooltipped::Yes, &mut sc_puppet);
         vd.field_trigger("ai_potential", Tooltipped::No, &mut sc);
         vd.field_validated_block_sc("ai_will_do", &mut sc, validate_modifiers_with_base);

@@ -1256,7 +1256,6 @@ const TRIGGER: &[(Scopes, &str, Trigger)] = &[
     (Scopes::Domicile, "herd", CompareValue),
     (Scopes::Faith, "heresy_threshold", CompareValue),
     (Scopes::Character, "highest_held_title_tier", CompareValue),
-    // TODO: verify whether "prowess" is a valid argument to highest_skill
     (Scopes::Character, "highest_skill", Item(Item::Skill)),
     (Scopes::Character, "highest_skill_including_prowess", Item(Item::Skill)),
     (Scopes::Character, "holds_landed_title", Boolean),

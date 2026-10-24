@@ -336,8 +336,9 @@ fn validate_culture_trait(
     let loca = format!("{key}_name");
     data.verify_exists_implied(Item::Localization, &loca, key);
 
-    // TODO: verify. The docs say this is a dynamic desc, but vanilla only uses loc keys
-    if !vd.field_item("desc", Item::Localization) {
+    // The docs say this is a dynamic desc with the culture as root
+    let mut sc = ScopeContext::new(Scopes::Culture, key);
+    if !vd.field_validated_sc("desc", &mut sc, validate_desc) {
         let loca = format!("{key}_desc");
         // The docs say pillars fall back to `<type>_generic_label_desc`
         let fallback = block

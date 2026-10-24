@@ -51,7 +51,6 @@ impl DbKind for CharacterTemplate {
         let mut vd = Validator::new(block, data);
         // The docs say templates accept every `create_character` field except `location` and
         // `save_scope_as`, plus `template` for a base template
-        // TODO: verify the fields vanilla doesn't use, e.g. `fertility` and `ethnicity`
         if let Some(token) = vd.field_value("template") {
             data.verify_exists(Item::CharacterTemplate, token);
             if token == key {
@@ -130,11 +129,11 @@ impl DbKind for CharacterTemplate {
             vd.field_item_or_target("faith", sc, Item::Faith, Scopes::Faith);
             vd.multi_field_validated_block_sc("random_faith", sc, validate_random_faith);
         }
-        // TODO: verify. The template docs say a faith key, the create_character docs a religion
+        // The docs also allow a faith or religion key, but the game rejects both as event targets
         if from_block.has_key("random_faith_in_religion") {
             vd.field_value("random_faith_in_religion");
         } else {
-            vd.field_item_or_target("random_faith_in_religion", sc, Item::Religion, Scopes::Faith);
+            vd.field_target("random_faith_in_religion", sc, Scopes::Faith);
         }
         if from_block.has_key("rite") {
             vd.field_value("rite");

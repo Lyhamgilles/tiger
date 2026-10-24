@@ -60,8 +60,8 @@ impl FileHandler<Block> for ProvinceTerrains {
     }
 
     fn load_file(&self, entry: &FileEntry, parser: &ParserMemory) -> Option<Block> {
-        // TODO: verify. The docs say every file is read, and any file can mix terrains and
-        // properties; this follows the vanilla file names.
+        // TODO: read every file. The game does, and any file can mix terrains and properties;
+        // this follows the vanilla file names.
         if !entry.filename().to_string_lossy().ends_with("province_terrain.txt") {
             // Omit _province_properties.txt
             return None;
@@ -139,7 +139,7 @@ impl FileHandler<Block> for ProvinceProperties {
     }
 
     fn load_file(&self, entry: &FileEntry, parser: &ParserMemory) -> Option<Block> {
-        // TODO: verify. See `ProvinceTerrains::load_file`.
+        // TODO: read every file. See `ProvinceTerrains::load_file`.
         if !entry.filename().to_string_lossy().ends_with("province_properties.txt") {
             // Omit _province_terrain.txt
             return None;

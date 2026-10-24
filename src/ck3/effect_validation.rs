@@ -2789,7 +2789,7 @@ pub fn validate_set_faith_or_rite_name(
     mut vd: Validator,
     _tooltipped: Tooltipped,
 ) {
-    // TODO: verify that name is required
+    // Without `name`, the game clears the name
     vd.req_field("name");
     vd.field_validated_sc("name", sc, validate_desc);
     vd.field_validated_sc("desc", sc, validate_desc);

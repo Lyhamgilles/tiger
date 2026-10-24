@@ -54,9 +54,8 @@ impl DbKind for MemoryType {
         vd.field_validated_sc("third_perspective_description", &mut sc, validate_desc);
 
         if !block.has_key("duration") {
-            // TODO: verify the info. The docs say it defaults to DEFAULT_MEMORY_DURATION_YEARS.
             let msg = "field `duration` missing";
-            let info = "without a duration field, the duration is only 1 day";
+            let info = "the game logs an error and defaults to 10 years";
             err(ErrorKey::FieldMissing).msg(msg).info(info).loc(block).push();
         }
         vd.field_validated_block_rooted("duration", Scopes::Character, validate_duration);

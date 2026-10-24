@@ -25,7 +25,6 @@ impl DbKind for ProvinceEffect {
 
         vd.field_integer("effect_index");
         vd.field_bool("is_winter_effect");
-        // TODO: verify. The docs say `secondary`, a vanilla comment `is_secondary`.
         vd.field_bool("secondary");
         vd.field_bool("include_impassable_provinces");
     }

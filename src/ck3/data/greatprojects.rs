@@ -48,8 +48,7 @@ impl DbKind for GreatProjectType {
 
         let mut vd = Validator::new(block, data);
 
-        // The docs say the game logs an error without a fallback icon
-        // TODO: verify. The 1.19 docs made the key the default, and its define still exists.
+        // The game logs an error without a fallback icon
         vd.req_field("icon");
 
         // The docs say a triggered icon list needs a fallback entry without a trigger
@@ -59,7 +58,7 @@ impl DbKind for GreatProjectType {
             err(ErrorKey::FieldMissing).msg(msg).loc(key).push();
         }
         vd.multi_field_validated("icon", |bv, data| match bv {
-            // TODO: verify. Undocumented since 1.20, but vanilla uses it twice.
+            // undocumented since 1.20
             BV::Value(value) => {
                 data.verify_exists(Item::File, value);
             }

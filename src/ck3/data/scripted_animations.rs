@@ -41,8 +41,7 @@ pub fn validate_scripted_animation(bv: &BV, data: &Everything, sc: &mut ScopeCon
                 vd.req_field("trigger");
                 vd.field_trigger("trigger", Tooltipped::No, sc);
                 vd.field_validated("animation", validate_animation);
-                // TODO: verify `scripted_animation`. Both docs versions allow it here, but vanilla
-                // doesn't use it.
+                vd.field_item("scripted_animation", Item::ScriptedAnimation);
                 vd.field_item("camera", Item::PortraitCamera);
             });
             vd.field_validated("animation", validate_animation);

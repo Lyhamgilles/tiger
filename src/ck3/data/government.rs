@@ -117,8 +117,6 @@ impl DbKind for Government {
 
         vd.field_list_items("primary_heritages", Item::CultureHeritage);
         vd.field_list_items("preferred_religions", Item::Religion);
-        // TODO: test whether this was removed in 1.13
-        vd.field_list_items("primary_cultures", Item::Culture);
 
         vd.field_bool("court_generate_spouses");
         if let Some(token) = vd.field_value("court_generate_commanders")
@@ -249,8 +247,4 @@ fn validate_ai(block: &Block, data: &Everything) {
     vd.field_bool("use_scripted_guis");
     vd.field_bool("use_legends");
     vd.field_bool("perform_religious_reformation");
-    // TODO: test whether this was removed in 1.13
-    vd.field_bool("imprison");
-    // TODO: test whether this was removed in 1.13
-    vd.field_bool("start_murders");
 }

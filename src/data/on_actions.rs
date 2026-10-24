@@ -203,10 +203,9 @@ fn validate_on_action_internal(
     // TODO: multiple random_events blocks in one on_action aren't outright bugged on Vic3,
     // but they might still get merged together into one big event pool. Verify.
 
-    let mut count = 0;
     if Game::is_jomini() {
-        #[allow(unused_variables)] // vic3 doesn't use `key`
-        vd.multi_field_validated_key_block("events", |key, b, data| {
+        // Several `events` blocks all fire in CK3 (in-game test, 1.20.1.2)
+        vd.multi_field_validated_block("events", |b, data| {
             let mut vd = Validator::new(b, data);
             #[cfg(feature = "jomini")]
             if Game::is_jomini() {
@@ -219,17 +218,9 @@ fn validate_on_action_internal(
                     data.event_validate_call(token, &mut event_sc);
                 }
             }
-            count += 1;
-            #[cfg(feature = "ck3")] // Verified: this is only a problem in CK3
-            if Game::is_ck3() && count == 2 {
-                // TODO: verify
-                let msg = format!("not sure if multiple `{key}` blocks in one on_action work");
-                let info = "try combining them into one block";
-                warn(ErrorKey::Validation).msg(msg).info(info).loc(key).push();
-            }
         });
     }
-    count = 0;
+    let mut count = 0;
     #[allow(unused_variables)] // vic3 doesn't use `key`
     vd.multi_field_validated_key_block("random_events", |key, b, data| {
         let mut vd = Validator::new(b, data);
@@ -281,9 +272,8 @@ fn validate_on_action_internal(
                 warn(ErrorKey::Validation).msg(msg).info(info).loc(key).push();
             }
         });
-        count = 0;
-        #[allow(unused_variables)] // vic3 doesn't use `key`
-        vd.multi_field_validated_key_block("on_actions", |key, b, data| {
+        // Several `on_actions` blocks all fire in CK3 (in-game test, 1.20.1.2)
+        vd.multi_field_validated_block("on_actions", |b, data| {
             let mut vd = Validator::new(b, data);
             #[cfg(feature = "jomini")]
             if Game::is_jomini() {
@@ -294,14 +284,6 @@ fn validate_on_action_internal(
                 if let Some(mut action_sc) = sc.root_for_action(token, data) {
                     data.on_actions.validate_call(token, data, &mut action_sc);
                 }
-            }
-            count += 1;
-            #[cfg(feature = "ck3")] // Verified: this is only a problem in CK3
-            if Game::is_ck3() && count == 2 {
-                // TODO: verify
-                let msg = format!("not sure if multiple `{key}` blocks in one on_action work");
-                let info = "try combining them into one block";
-                warn(ErrorKey::Validation).msg(msg).info(info).loc(key).push();
             }
         });
         count = 0;

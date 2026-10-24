@@ -90,7 +90,7 @@ impl DbKind for CasusBelli {
         let sc_effect_builder = |key: &Token| {
             let mut sc = sc_builder(key);
             sc.define_name("war", Scopes::War, key);
-            // TODO: verify. Undocumented here, but the group docs say these are lists of characters.
+            // undocumented here, but the group docs say these are lists of characters
             sc.define_list("attackers", Scopes::Character, key);
             sc.define_list("defenders", Scopes::Character, key);
             sc
@@ -113,8 +113,7 @@ impl DbKind for CasusBelli {
             });
         }
 
-        // TODO: verify scope:war. The group docs give it to the group's `should_invalidate`,
-        // and vanilla uses it here.
+        // undocumented scope:war. The group docs give it to the group's `should_invalidate`.
         vd.field_trigger_builder("should_invalidate", Tooltipped::No, sc_effect_builder);
         vd.field_trigger("mutually_exclusive_titles", Tooltipped::No, &mut sc);
         vd.field_bool("combine_into_one");

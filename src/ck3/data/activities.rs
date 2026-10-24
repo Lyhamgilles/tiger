@@ -585,7 +585,7 @@ fn validate_phase(key: &Token, block: &Block, data: &Everything, has_special_opt
     }
     vd.field_trigger("is_shown", Tooltipped::No, &mut sc);
     vd.field_trigger("can_pick", Tooltipped::Yes, &mut sc);
-    // TODO: verify scope:activity. The docs leave it out here, but give it everywhere else.
+    // The docs leave out scope:activity here, but give it everywhere else
     vd.field_trigger_builder("is_valid", Tooltipped::No, build_activity_sc);
 
     let mut sc = build_character_activity_sc(key);

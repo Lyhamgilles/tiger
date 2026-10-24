@@ -56,8 +56,7 @@ impl DbKind for Tenet {
         let mut can_pick_sc = ScopeContext::new(Scopes::Faith, key);
         can_pick_sc.define_name("actor", Scopes::Character, key);
         can_pick_sc.define_list("selected_doctrines", selected, key);
-        // TODO: verify. Not documented for piety_cost, but vanilla uses it there once
-        // (like for doctrines)
+        // undocumented for piety_cost, but vanilla uses it there (like for doctrines)
         let mut rite_sc = ScopeContext::new(Scopes::Rite, key);
         rite_sc.define_list("selected_doctrines", selected, key);
 

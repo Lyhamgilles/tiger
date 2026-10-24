@@ -281,7 +281,7 @@ pub fn validate_maa_upgrade(block: &Block, data: &Everything) {
         let msg = format!("{token} is not a men-at-arms type or base type");
         err(ErrorKey::MissingItem).msg(msg).loc(token).push();
     }
-    // TODO: verify. Undocumented, but vanilla uses it in both eras and innovations
+    // undocumented
     vd.field_item("men_at_arms", Item::MenAtArms);
     validate_maa_stats(&mut vd);
 }

@@ -78,8 +78,7 @@ impl DbKind for LeaseContract {
                 }
 
                 let mut vd = Validator::new(block, data);
-                // TODO: verify the share roots. They are undocumented, but vanilla uses character
-                // triggers on them 3 times.
+                // The share roots are undocumented, but vanilla uses character triggers on them
                 // The docs say the lease liege shares require a hierarchy definition.
                 for share in ["lease_liege", "top_lease_liege_direct"] {
                     let max = format!("{share}_max");
