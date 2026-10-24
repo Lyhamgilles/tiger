@@ -57,11 +57,16 @@ impl DbKind for CourtSceneRole {
         let mut vd = Validator::new(block, data);
         let mut sc = ScopeContext::new(Scopes::Character, key);
         sc.define_name("ruler", Scopes::Character, key);
+        sc.define_name("character", Scopes::Character, key);
 
         vd.field_validated_sc("scripted_animation", &mut sc, validate_scripted_animation);
         vd.field_item("camera", Item::PortraitCamera);
 
-        vd.field_effect_rooted("effect", Tooltipped::No, Scopes::Character);
+        vd.field_effect_builder("effect", Tooltipped::No, |key| {
+            let mut sc = ScopeContext::new(Scopes::Character, key);
+            sc.define_name("ruler", Scopes::Character, key);
+            sc
+        });
 
         vd.field_bool("is_low_priority");
         vd.field_item("group", Item::CourtSceneGroup);
@@ -112,6 +117,7 @@ impl DbKind for CourtSceneSetting {
 
         vd.field_value("name");
         vd.field_item("culture", Item::CourtSceneCulture);
+        vd.field_item("requires_dlc_flag", Item::DlcFeature); // undocumented
         vd.field_integer("visual_culture_level");
         vd.field_item("cubemap", Item::File);
         vd.field_item("environment", Item::File);

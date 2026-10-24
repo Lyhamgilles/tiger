@@ -67,6 +67,20 @@ impl DbKind for Region {
             }
             data.verify_exists(Item::Title, token);
         });
+        vd.field_validated_list("hegemonies", |token, data| {
+            if !token.starts_with("h_") {
+                let msg = "only hegemonies can be listed in the hegemonies field";
+                err(ErrorKey::Validation).msg(msg).loc(token).push();
+            }
+            data.verify_exists(Item::Title, token);
+        });
+        vd.field_validated_list("empires", |token, data| {
+            if !token.starts_with("e_") {
+                let msg = "only empires can be listed in the empires field";
+                err(ErrorKey::Validation).msg(msg).loc(token).push();
+            }
+            data.verify_exists(Item::Title, token);
+        });
         vd.field_validated_list("kingdoms", |token, data| {
             if !token.starts_with("k_") {
                 let msg = "only kingdoms can be listed in the kingdoms field";
