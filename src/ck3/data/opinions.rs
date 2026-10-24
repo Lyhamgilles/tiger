@@ -3,6 +3,7 @@ use crate::db::{Db, DbKind};
 use crate::everything::Everything;
 use crate::game::GameFlags;
 use crate::item::{Item, ItemLoader};
+use crate::report::{ErrorKey, err, untidy};
 use crate::token::Token;
 use crate::validator::Validator;
 
@@ -31,29 +32,69 @@ impl DbKind for OpinionModifier {
         vd.field_integer("opinion");
 
         // TODO: if true, must define either monthly_change or delay duration
-        // TODO: mutually exclusive with growing
         vd.field_bool("decaying");
-        if block.get_field_bool("decaying").unwrap_or(false) {
-            vd.field_integer("delay_days");
-            vd.field_integer("delay_months");
-            vd.field_integer("delay_years");
-        } else {
-            vd.ban_field("delay_days", || "decaying opinions");
-            vd.ban_field("delay_months", || "decaying opinions");
-            vd.ban_field("delay_years", || "decaying opinions");
+        let decaying = block.get_field_bool("decaying").unwrap_or(false);
+        for field in &["delay_days", "delay_weeks", "delay_months", "delay_years"] {
+            if decaying {
+                vd.field_integer(field);
+            } else {
+                vd.ban_field(field, || "decaying opinions");
+            }
         }
 
-        vd.field_integer("days");
-        vd.field_integer("months");
-        vd.field_integer("years");
+        let mut duration = None;
+        for field in &["days", "weeks", "months", "years"] {
+            duration = duration.or_else(|| block.get_key(field));
+            vd.field_integer(field);
+        }
 
+        // The docs give the rules below
         vd.field_numeric("monthly_change");
+        if let Some(key) = block.get_key("monthly_change") {
+            if let Some(duration) = duration {
+                let msg = "`monthly_change` and a duration are mutually exclusive";
+                err(ErrorKey::Validation).msg(msg).loc(key).loc_msg(duration, "duration").push();
+            }
+            if !decaying && !block.get_field_bool("growing").unwrap_or(false) {
+                let msg = "`monthly_change` does nothing without `decaying` or `growing`";
+                untidy(ErrorKey::Unneeded).msg(msg).loc(key).push();
+            }
+        }
 
         vd.field_bool("growing");
+        if let Some(key) = block.get_key("growing")
+            && block.get_field_bool("growing").unwrap_or(false)
+        {
+            if decaying {
+                let msg = "`growing` and `decaying` are mutually exclusive";
+                err(ErrorKey::Validation).msg(msg).loc(key).push();
+            }
+            if !block.has_key("monthly_change") {
+                let msg = "growing opinions need `monthly_change`";
+                let info = "the docs say growing by duration is not implemented";
+                err(ErrorKey::FieldMissing).msg(msg).info(info).loc(key).push();
+            }
+        }
         vd.field_bool("stacking");
 
         vd.field_integer("min");
         vd.field_integer("max");
+        if !block.get_field_bool("stacking").unwrap_or(false) {
+            for field in &["min", "max"] {
+                if let Some(key) = block.get_key(field) {
+                    let msg = format!("`{field}` does nothing without `stacking = yes`");
+                    untidy(ErrorKey::Unneeded).msg(msg).loc(key).push();
+                }
+            }
+        }
+        if let Some(key) = block.get_key("min")
+            && let Some(min) = block.get_field_integer("min")
+            && let Some(max) = block.get_field_integer("max")
+            && min > max
+        {
+            let msg = "`min` must not be higher than `max`";
+            err(ErrorKey::Range).msg(msg).loc(key).push();
+        }
 
         vd.field_bool("imprisonment_reason");
         vd.field_bool("banish_reason");

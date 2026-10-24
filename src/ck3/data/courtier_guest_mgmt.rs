@@ -93,7 +93,6 @@ impl GuestSystem {
 
 impl DbKind for GuestSystem {
     fn validate(&self, key: &Token, block: &Block, data: &Everything) {
-        // TODO: the root scope is not documented here
         let mut sc = ScopeContext::new(Scopes::None, key);
         sc.define_name("mover", Scopes::Character, key);
 

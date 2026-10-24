@@ -89,6 +89,24 @@ impl FileHandler<Block> for CharacterInteractionCategories {
             }
             // if no index, the item will warn about that in validate
         }
+
+        for field in ["default", "favorite_interactions"] {
+            let mut first: Option<&Token> = None;
+            for item in self.categories.values() {
+                if item.block.field_value_is(field, "yes") {
+                    if let Some(other) = first {
+                        let msg = format!("only one category can have `{field} = yes`");
+                        err(ErrorKey::Validation)
+                            .msg(msg)
+                            .loc(&item.key)
+                            .loc_msg(other, "other category")
+                            .push();
+                    } else {
+                        first = Some(&item.key);
+                    }
+                }
+            }
+        }
     }
 }
 
@@ -106,11 +124,13 @@ impl Category {
     }
 
     pub fn validate(&self, data: &Everything) {
+        data.verify_exists(Item::Localization, &self.key);
+
         let mut vd = Validator::new(&self.block, data);
         vd.req_field("index");
-        vd.req_field("desc");
         vd.field_integer("index");
         vd.field_item("desc", Item::Localization);
+        vd.field_icon("icon", "NGameIcons|CHARACTER_INTERACTION_CATEGORY_ICON_PATH", ".dds");
         vd.field_bool("default");
         vd.field_bool("favorite_interactions");
         vd.field_validated_block("color", validate_color);
