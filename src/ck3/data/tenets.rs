@@ -1,7 +1,7 @@
 use crate::block::{BV, Block};
 use crate::ck3::data::doctrines::validate_special_parameters;
 use crate::ck3::modif::ModifKinds;
-use crate::ck3::validate::validate_traits;
+use crate::ck3::validate::{validate_parameter_value, validate_traits};
 use crate::context::ScopeContext;
 use crate::db::{Db, DbKind};
 use crate::desc::validate_desc;
@@ -35,6 +35,10 @@ impl DbKind for Tenet {
                 db.add_flag(Item::DoctrineBooleanParameter, token.clone());
                 db.add_flag(Item::DoctrineParameter, token.clone());
             }
+            for (key, _) in block.iter_assignments() {
+                db.add_flag(Item::DoctrineBooleanParameter, key.clone());
+                db.add_flag(Item::DoctrineParameter, key.clone());
+            }
         }
         if let Some(block) = block.get_field_block("personal_tenet_parameters") {
             for token in block.iter_values() {
@@ -52,7 +56,8 @@ impl DbKind for Tenet {
         let mut can_pick_sc = ScopeContext::new(Scopes::Faith, key);
         can_pick_sc.define_name("actor", Scopes::Character, key);
         can_pick_sc.define_list("selected_doctrines", selected, key);
-        // Not documented for piety_cost, but vanilla uses it there (like for doctrines)
+        // TODO: verify. Not documented for piety_cost, but vanilla uses it there once
+        // (like for doctrines)
         let mut rite_sc = ScopeContext::new(Scopes::Rite, key);
         rite_sc.define_list("selected_doctrines", selected, key);
 
@@ -84,6 +89,7 @@ impl DbKind for Tenet {
         vd.field_validated_block("parameters", |block, data| {
             let mut vd = Validator::new(block, data);
             vd.values();
+            vd.unknown_value_fields(validate_parameter_value); // undocumented
         });
         vd.field_script_value("piety_cost", &mut rite_sc);
         vd.field_trigger("is_shown", Tooltipped::No, &mut faith_sc);

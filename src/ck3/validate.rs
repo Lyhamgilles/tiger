@@ -6,8 +6,9 @@ use crate::context::ScopeContext;
 use crate::desc::validate_desc;
 use crate::everything::Everything;
 use crate::item::Item;
-use crate::report::{ErrorKey, err, fatal};
+use crate::report::{ErrorKey, err, fatal, warn};
 use crate::scopes::Scopes;
+use crate::token::Token;
 use crate::tooltipped::Tooltipped;
 use crate::trigger::{validate_target, validate_target_ok_this};
 use crate::validate::{validate_modifiers_with_base, validate_scope_chain};
@@ -87,6 +88,14 @@ pub fn validate_theme_effect_2d(bv: &BV, data: &Everything, sc: &mut ScopeContex
                 data.verify_exists(Item::EventEffect2d, token);
             }
         }
+    }
+}
+
+/// Parameter lists take bare names, but vanilla also uses `name = yes`
+pub fn validate_parameter_value(key: &Token, value: &Token) {
+    if !value.is("yes") {
+        let msg = format!("expected `{key} = yes` or just `{key}`");
+        warn(ErrorKey::Validation).msg(msg).loc(value).push();
     }
 }
 

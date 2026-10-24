@@ -1,6 +1,7 @@
 use crate::block::Block;
 use crate::ck3::data::titles::Tier;
 use crate::ck3::modif::ModifKinds;
+use crate::ck3::validate::validate_parameter_value;
 use crate::db::{Db, DbKind};
 use crate::everything::Everything;
 use crate::game::GameFlags;
@@ -78,11 +79,8 @@ impl DbKind for HolySite {
         vd.field_validated_block("parameters", |block, data| {
             let mut vd = Validator::new(block, data);
             vd.values();
-            // The docs say the legacy `parameter = yes` form is still accepted, ignoring the value
-            vd.unknown_value_fields(|key, value| {
-                let msg = format!("should use `{key}` instead of `{key} = {value}`");
-                warn(ErrorKey::Deprecated).msg(msg).loc(key).push();
-            });
+            // The docs say the `parameter = yes` form is still accepted, ignoring the value
+            vd.unknown_value_fields(validate_parameter_value);
         });
 
         vd.replaced_field("character_modifier", "`faith_character_modifier`");

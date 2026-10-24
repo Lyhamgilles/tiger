@@ -1,6 +1,6 @@
 use crate::block::Block;
 use crate::ck3::modif::ModifKinds;
-use crate::ck3::validate::validate_traits;
+use crate::ck3::validate::{validate_parameter_value, validate_traits};
 use crate::context::ScopeContext;
 use crate::db::{Db, DbKind};
 use crate::desc::validate_desc;
@@ -178,12 +178,8 @@ impl DbKind for Doctrine {
 fn validate_parameters(block: &Block, data: &Everything) {
     let mut vd = Validator::new(block, data);
     vd.values();
-    // The old `parameter = yes` form is undocumented, but still works (verified in 1.20.1)
-    vd.unknown_value_fields(|key, value| {
-        let msg = format!("should use `{key}` instead of `{key} = {value}`");
-        let info = "since 1.20, parameters are a list of names; special values such as `number_of_spouses` go in `special_parameters`";
-        warn(ErrorKey::Deprecated).msg(msg).info(info).loc(key).push();
-    });
+    // The `parameter = yes` form is undocumented, but still works (verified in 1.20.1)
+    vd.unknown_value_fields(validate_parameter_value);
 }
 
 /// Check that no doctrine is listed twice, and that no two doctrines are from the same group
