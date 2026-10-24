@@ -88,7 +88,7 @@ impl DbKind for Modifier {
     }
 }
 
-// LAST UPDATED CK3 VERSION 1.12.1
+// LAST UPDATED CK3 VERSION 1.20.1
 /// Get the modifier kinds from property name
 /// See `effects.log` from the game data dumps.
 fn get_modif_kinds(name: &str) -> ModifKinds {

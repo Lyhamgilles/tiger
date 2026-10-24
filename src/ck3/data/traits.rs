@@ -355,7 +355,7 @@ fn validate_trait_track(key: &Token, block: &Block, data: &Everything, warn_key:
         let mut sc = ScopeContext::new(Scopes::None, warn_key);
         validate_script_value(&BV::Value(key.clone()), data, &mut sc);
         if let Some(xp) = key.get_integer() {
-            // LAST UPDATED CK3 VERSION 1.11.3
+            // LAST UPDATED CK3 VERSION 1.20.1
             if xp > 100 {
                 let msg = "trait xp only goes up to 100";
                 err(ErrorKey::Range).strong().msg(msg).loc(key).push();

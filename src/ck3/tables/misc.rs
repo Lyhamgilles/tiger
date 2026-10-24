@@ -146,15 +146,15 @@ pub const OLD_TARGET_FILTERS: &[(&str, &str, &str)] = &[
     ("recipient_title_maa", "title_maa", "recipient"),
 ];
 
-// LAST UPDATED CK3 VERSION 1.11.3
+// LAST UPDATED CK3 VERSION 1.20.1
 pub const ACTIVITY_STATES: &[&str] = &["passive", "travel", "active"];
 
-// LAST UPDATED CK3 VERSION 1.13.0.1
+// LAST UPDATED CK3 VERSION 1.20.1
 // Taken from the agent_slot_has_contribution_type trigger doc
 pub const AGENT_SLOT_CONTRIBUTION_TYPE: &[&str] =
     &["secrecy", "success_chance", "success_chance_growth", "success_chance_max", "speed"];
 
-// LAST UPDATED CK3 VERSION 1.12.1
+// LAST UPDATED CK3 VERSION 1.20.1
 // Taken from the create_artifact description in effects.log
 pub const ARTIFACT_HISTORY: &[&str] = &[
     "created_before_history",
@@ -178,7 +178,7 @@ pub const ARTIFACT_HISTORY: &[&str] = &[
     "removed_from_holy_site",
 ];
 
-/// LAST UPDATED CK3 VERSION 1.18.3
+/// LAST UPDATED CK3 VERSION 1.20.1
 /// Taken from `AccessBreakdownTooltip` usage in `gui/shared/value_breakdown.gui`
 pub const CURRENCIES_CK3: &[&str] = &[
     "piety",
@@ -500,14 +500,14 @@ pub const GOVERNMENT_RULES: &[&str] = &[
     "allow_as_base_for_baronies",
 ];
 
-// LAST UPDATED CK3 VERSION 1.12.1
+// LAST UPDATED CK3 VERSION 1.20.1
 pub const LEGEND_QUALITY: &[&str] = &["famed", "illustrious", "mythical"];
 
-// LAST UPDATED CK3 VERSION 1.12.1
+// LAST UPDATED CK3 VERSION 1.20.1
 // Gathered from vanilla game files
 pub const REWARD_ITEMS: &[&str] = &["newsletter_crown"];
 
-// LAST UPDATED CK3 VERSION 1.12.1
+// LAST UPDATED CK3 VERSION 1.20.1
 // Gathered from vanilla game files
 pub const PRISON_TYPES: &[&str] = &["dungeon", "house_arrest"];
 
@@ -537,19 +537,19 @@ pub const PROVINCE_FILTERS: &[&str] = &[
     "all",
 ];
 
-// LAST UPDATED CK3 VERSION 1.12.1
+// LAST UPDATED CK3 VERSION 1.20.1
 pub const SKILLS: &[&str] =
     &["diplomacy", "intrigue", "learning", "martial", "prowess", "stewardship"];
 
-// LAST UPDATED CK3 VERSION 1.12.1
+// LAST UPDATED CK3 VERSION 1.20.1
 pub const SEXUALITIES: &[&str] = &["heterosexual", "homosexual", "bisexual", "asexual", "none"];
 
-// LAST UPDATED CK3 VERSION 1.15
+// LAST UPDATED CK3 VERSION 1.20.1
 // Taken from gfx/court_scene/scene_settings/scene_settings_indian_1_g1.txt
 pub const SUPPORT_TYPES: &[&str] =
     &["lectern", "tall", "short_pillow", "tall_pillow", "armorstand", "short"];
 
-// LAST UPDATED CK3 VERSION 1.13.0.1
+// LAST UPDATED CK3 VERSION 1.20.1
 // Taken from recent_history description in triggers.log
 pub const TITLE_HISTORY_TYPES: &[&str] = &[
     "conquest",
@@ -577,13 +577,13 @@ pub const TITLE_HISTORY_TYPES: &[&str] = &[
     "confederation",
 ];
 
-// LAST UPDATED CK3 VERSION 1.16
+// LAST UPDATED CK3 VERSION 1.20.1
 // These are the types that can't be used in `create_title_and_vassal_change`.
 // Taken from an error.log message.
 pub const BANNED_TITLE_HISTORY_TYPES: &[&str] =
     &["inheritance", "abdication", "appointment_succession"];
 
-// LAST UPDATED CK3 VERSION 1.12.1
+// LAST UPDATED CK3 VERSION 1.20.1
 // Gathered from vanilla common/traits/
 pub const TRAIT_CATEGORIES: &[&str] = &[
     "childhood",
@@ -597,7 +597,7 @@ pub const TRAIT_CATEGORIES: &[&str] = &[
     "winter_commander",
 ];
 
-// LAST UPDATED CK3 VERSION 1.12.1
+// LAST UPDATED CK3 VERSION 1.20.1
 // Gathered from vanilla game files, both the use of the `travel_danger_type` trigger and what's in
 // the localization files for `travel_danger_type_*`
 pub const DANGER_TYPES: &[&str] = &[
@@ -613,10 +613,10 @@ pub const DANGER_TYPES: &[&str] = &[
     "epidemic",
 ];
 
-// LAST UPDATED CK3 VERSION 1.12.1
+// LAST UPDATED CK3 VERSION 1.20.1
 pub const ARTIFACT_RARITIES: &[&str] = &["common", "masterwork", "famed", "illustrious"];
 
-// LAST UPDATED CK3 VERSION 1.12.1
+// LAST UPDATED CK3 VERSION 1.20.1
 pub const OUTBREAK_INTENSITIES: &[&str] = &["minor", "major", "apocalyptic"];
 
 // LAST UPDATED CK3 VERSION 1.20.1
