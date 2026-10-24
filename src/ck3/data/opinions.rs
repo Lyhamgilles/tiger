@@ -106,7 +106,6 @@ impl DbKind for OpinionModifier {
 
         vd.advice_field("disable_non_aggression_pacts", "removed in 1.12");
         vd.advice_field("non_aggression_pact", "removed in 1.12");
-        vd.advice_field("obedient", "removed in 1.12");
         vd.advice_field("non_interference", "removed in 1.12");
     }
 }
