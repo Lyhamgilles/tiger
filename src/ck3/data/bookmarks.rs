@@ -229,9 +229,9 @@ impl DbKind for BookmarkPortrait {
     fn validate(&self, _key: &Token, block: &Block, data: &Everything) {
         let mut vd = Validator::new(block, data);
         vd.field_choice("type", &["male", "female", "boy", "girl"]);
-        vd.field_value("id"); // TODO
-        vd.field_value("random_seed");
-        vd.field_precise_numeric("age");
+        vd.field_integer("id");
+        vd.field_integer("random_seed");
+        vd.field_precise_numeric_range("age", 0.0..=1.0);
         vd.field_list_integers_exactly("entity", 2);
         vd.field_validated_block("genes", validate_genes);
         vd.field_validated_block("override", |block, data| {
@@ -240,12 +240,24 @@ impl DbKind for BookmarkPortrait {
                 "portrait_modifier_overrides",
                 validate_portrait_modifier_overrides,
             );
+            vd.field_validated_block("colors", |block, data| {
+                let mut vd = Validator::new(block, data);
+                for field in ["skin", "eye", "hair"] {
+                    vd.field_list_precise_numeric_exactly(field, 3);
+                    for token in block.get_field_list(field).unwrap_or_default() {
+                        if token.get_number().is_some_and(|v| !(0.0..=1.0).contains(&v)) {
+                            let msg = "color values should be between 0 and 1";
+                            err(ErrorKey::Colors).msg(msg).loc(token).push();
+                        }
+                    }
+                }
+            });
         });
         vd.field_validated_block("tags", |block, data| {
             let mut vd = Validator::new(block, data);
             for block in vd.blocks() {
                 let mut vd = Validator::new(block, data);
-                vd.field_value("hash");
+                vd.field_integer("hash");
                 vd.field_bool("invert");
             }
         });
@@ -309,6 +321,6 @@ impl DbKind for ChallengeCharacter {
             validate_bookmark_character(block, data, true, start_date);
         });
 
-        vd.field_list("achievements"); // TODO: validate achievements?
+        vd.field_list_items("achievements", Item::Achievement);
     }
 }
