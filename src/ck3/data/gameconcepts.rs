@@ -62,15 +62,22 @@ impl FileHandler<Block> for GameConcepts {
     }
 
     fn finalize(&mut self) {
-        for (key, concept) in &self.concepts {
+        // The docs say the game logs an error and skips an alias that collides with an existing
+        // concept or alias, so go in load order and keep the first one
+        let mut concepts: Vec<_> = self.concepts.iter().collect();
+        concepts.sort_by_key(|(_, concept)| concept.key.loc);
+        for (key, concept) in concepts {
             for token in concept.block.get_multi_field_list("alias") {
-                // The docs say the game logs an error and skips such an alias
                 if self.concepts.contains_key(token.as_str()) {
                     let msg = format!("alias {token} is also a game concept");
                     err(ErrorKey::Conflict).msg(msg).loc(token).push();
-                } else if let Some(other) = self.aliases.insert(token.as_str(), key) {
-                    let msg = format!("alias {token} is also an alias of game concept {other}");
-                    err(ErrorKey::Conflict).msg(msg).loc(token).push();
+                } else if let Some(&other) = self.aliases.get(token.as_str()) {
+                    if other != *key {
+                        let msg = format!("alias {token} is also an alias of game concept {other}");
+                        err(ErrorKey::Conflict).msg(msg).loc(token).push();
+                    }
+                } else {
+                    self.aliases.insert(token.as_str(), key);
                 }
             }
         }

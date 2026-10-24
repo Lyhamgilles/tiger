@@ -35,7 +35,7 @@ impl DbKind for LeaseContract {
                     block.field_value_is("theocracy_lease_contract_type", key.as_str())
                 })
             });
-        if key.is("theocracy_lease") {
+        if hierarchical {
             vd.req_field("hierarchy");
         }
         if hierarchical {

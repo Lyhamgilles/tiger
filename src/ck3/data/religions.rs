@@ -249,11 +249,21 @@ impl DbKind for Faith {
         let loca = format!("{key}_desc");
         data.verify_exists_implied(Item::Localization, &loca, key);
 
-        let pagan = block.get_field_list("doctrines").is_some_and(|doctrines| {
-            doctrines
-                .iter()
-                .any(|value| data.item_has_property(Item::Doctrine, value.as_str(), "unreformed"))
-        });
+        // The docs say any doctrine or core tenet can make a faith unreformed, and the
+        // religion's doctrines apply to its faiths
+        let unreformed = |itype, keys: &[Token]| {
+            keys.iter().any(|key| data.item_has_property(itype, key.as_str(), "unreformed"))
+        };
+        let religion_doctrines: Vec<Token> = block
+            .get_field_block("faith_details")
+            .and_then(|block| block.get_field_value("religion"))
+            .and_then(|religion| data.database.get_key_block(Item::Religion, religion.as_str()))
+            .map(|(_, block)| block.get_field_values("doctrine").into_iter().cloned().collect())
+            .unwrap_or_default();
+        let pagan =
+            unreformed(Item::Doctrine, &block.get_field_list("doctrines").unwrap_or_default())
+                || unreformed(Item::Tenet, &block.get_field_list("tenets").unwrap_or_default())
+                || unreformed(Item::Doctrine, &religion_doctrines);
         if pagan {
             let loca = format!("{key}_old");
             data.verify_exists_implied(Item::Localization, &loca, key);

@@ -1119,7 +1119,8 @@ fn match_trigger_bv(
                         && !block.field_value_is("type", "trigger")
                     {
                         let msg = "puppet action needs `type = trigger`";
-                        err(ErrorKey::Validation).msg(msg).loc(token).push();
+                        let sev = Severity::Error.at_most(max_sev);
+                        crate::report::report(ErrorKey::Validation, sev).msg(msg).loc(token).push();
                     }
                 }
             } else if name.is("save_temporary_opinion_value_as") {

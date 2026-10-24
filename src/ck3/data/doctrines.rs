@@ -93,12 +93,7 @@ impl DbKind for Doctrine {
         property: &str,
         _data: &Everything,
     ) -> bool {
-        if property == "unreformed"
-            && let Some(special) = block.get_field_block("special_parameters")
-        {
-            return special.field_value_is("unreformed", "yes");
-        }
-        false
+        property == "unreformed" && is_unreformed(block)
     }
 
     fn add_subitems(&self, _key: &Token, block: &Block, db: &mut Db) {
@@ -219,6 +214,13 @@ pub fn validate_doctrine_groups(doctrines: &[Token], data: &Everything) {
 const HOSTILITY_LEVELS: &[&str] = &["righteous", "astray", "hostile", "evil"];
 
 /// The `special_parameters` block of doctrines and tenets
+/// Whether a doctrine or tenet makes its faith unreformed
+pub fn is_unreformed(block: &Block) -> bool {
+    block
+        .get_field_block("special_parameters")
+        .is_some_and(|special| special.field_value_is("unreformed", "yes"))
+}
+
 pub fn validate_special_parameters(block: &Block, data: &Everything) {
     let mut vd = Validator::new(block, data);
     vd.field_integer("number_of_spouses");

@@ -1,5 +1,5 @@
 use crate::block::{BV, Block};
-use crate::ck3::data::doctrines::validate_special_parameters;
+use crate::ck3::data::doctrines::{is_unreformed, validate_special_parameters};
 use crate::ck3::modif::ModifKinds;
 use crate::ck3::validate::{validate_parameter_value, validate_traits};
 use crate::context::ScopeContext;
@@ -28,6 +28,16 @@ impl Tenet {
 }
 
 impl DbKind for Tenet {
+    fn has_property(
+        &self,
+        _key: &Token,
+        block: &Block,
+        property: &str,
+        _data: &Everything,
+    ) -> bool {
+        property == "unreformed" && is_unreformed(block)
+    }
+
     fn add_subitems(&self, _key: &Token, block: &Block, db: &mut Db) {
         // Tenet parameters are plain flags that can be checked like doctrine parameters
         if let Some(block) = block.get_field_block("parameters") {
