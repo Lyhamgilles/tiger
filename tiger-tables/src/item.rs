@@ -243,6 +243,7 @@ pub enum Item {
     #[cfg(feature = "ck3")] ActivityOptionCategory,
     #[cfg(feature = "ck3")] ActivityPhase,
     #[cfg(feature = "ck3")] ActivityPulseAction,
+    #[cfg(feature = "ck3")] ActivityPulseActionIcon,
     #[cfg(feature = "ck3")] ActivityState,
     #[cfg(feature = "ck3")] ActivityType,
     #[cfg(feature = "ck3")] AiWarStance,
@@ -1280,6 +1281,8 @@ impl Item {
             Item::ActivityPhase => "common/activities/activity_types/",
             #[cfg(feature = "ck3")]
             Item::ActivityPulseAction => "common/activities/pulse_actions/",
+            #[cfg(feature = "ck3")]
+            Item::ActivityPulseActionIcon => "gfx/interface/icons/activity_pulse_actions/",
             #[cfg(feature = "ck3")]
             Item::ActivityState => "",
             #[cfg(feature = "ck3")]

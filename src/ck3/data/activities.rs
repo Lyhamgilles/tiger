@@ -7,7 +7,8 @@ use crate::db::{Db, DbKind};
 use crate::desc::validate_desc;
 use crate::everything::Everything;
 use crate::game::GameFlags;
-use crate::item::{Item, ItemLoader};
+use crate::item::{Item, ItemLoader, LoadAsFile, Recursive};
+use crate::pdxfile::PdxEncoding;
 use crate::report::{ErrorKey, err, warn};
 use crate::scopes::Scopes;
 use crate::token::Token;
@@ -724,6 +725,35 @@ impl DbKind for GuestInviteRule {
 }
 
 #[derive(Clone, Debug)]
+pub struct ActivityPulseActionIcon {
+    path: Token,
+}
+
+inventory::submit! {
+    ItemLoader::Full(GameFlags::Ck3, Item::ActivityPulseActionIcon, PdxEncoding::Utf8OptionalBom, ".txt", LoadAsFile::Yes, Recursive::No, ActivityPulseActionIcon::add)
+}
+
+impl ActivityPulseActionIcon {
+    /// `path_overrides.txt` in the icon folder maps icon names to texture files, which are used
+    /// instead of `<name>.dds` in that folder
+    #[allow(clippy::needless_pass_by_value)]
+    pub fn add(db: &mut Db, key: Token, block: Block) {
+        if key.is("path_overrides") {
+            for (key, path) in block.iter_assignments() {
+                let kind = Box::new(Self { path: path.clone() });
+                db.add(Item::ActivityPulseActionIcon, key.clone(), Block::new(key.loc), kind);
+            }
+        }
+    }
+}
+
+impl DbKind for ActivityPulseActionIcon {
+    fn validate(&self, _key: &Token, _block: &Block, data: &Everything) {
+        data.verify_exists(Item::File, &self.path);
+    }
+}
+
+#[derive(Clone, Debug)]
 pub struct ActivityPulseAction {}
 
 inventory::submit! {
@@ -745,7 +775,9 @@ impl DbKind for ActivityPulseAction {
 
         let define = "NGameIcons|ACTIVITY_PULSE_ACTION_ICON_PATH";
         let icon = vd.field_value("icon").unwrap_or(key);
-        data.verify_icon(define, icon, ".dds");
+        if !data.item_exists(Item::ActivityPulseActionIcon, icon.as_str()) {
+            data.verify_icon(define, icon, ".dds");
+        }
 
         let mut sc = build_activity_sc(key);
         vd.field_trigger("is_valid", Tooltipped::No, &mut sc);
