@@ -3,6 +3,7 @@ use crate::db::{Db, DbKind};
 use crate::everything::Everything;
 use crate::game::GameFlags;
 use crate::item::{Item, ItemLoader};
+use crate::report::{ErrorKey, err};
 use crate::token::Token;
 use crate::validator::Validator;
 
@@ -39,6 +40,8 @@ impl DbKind for Flavorization {
                     "head_of_faith",
                     "councillor",
                     "domicile",
+                    "clerical_region_holder",
+                    "saint",
                 ],
             );
         } else {
@@ -64,6 +67,14 @@ impl DbKind for Flavorization {
             vd.field_bool("top_liege");
             vd.field_bool("only_vassals");
             vd.field_bool("ignore_top_liege_government");
+            vd.field_bool("target_character");
+            if block.field_value_is("top_liege", "yes")
+                && let Some(key) = block.get_key("target_character")
+                && block.field_value_is("target_character", "yes")
+            {
+                let msg = "`target_character` and `top_liege` are mutually exclusive";
+                err(ErrorKey::Conflict).msg(msg).loc(key).push();
+            }
         });
         vd.field_value("flag");
         vd.field_list_items("governments", Item::GovernmentType);
@@ -72,6 +83,15 @@ impl DbKind for Flavorization {
         vd.field_list_items("heritages", Item::CultureHeritage);
         vd.field_list_items("faiths", Item::Faith);
         vd.field_list_items("religions", Item::Religion);
+        vd.field_list_items("rites", Item::RiteType);
+        vd.field_list_items("lessee_governments", Item::GovernmentType);
+        vd.field_list_items("lessee_heritages", Item::CultureHeritage);
+        vd.field_list_items("lessee_faiths", Item::Faith);
+        vd.field_list_items("lessee_rites", Item::RiteType);
+        vd.field_choice(
+            "special_title",
+            &["head_of_faith", "clerical_region", "clerical_elector", "noble_family"],
+        );
         vd.field_item("council_position", Item::CouncilPosition);
         vd.field_list_items("de_jure_liege", Item::Title);
         vd.field_item("holding", Item::HoldingType);

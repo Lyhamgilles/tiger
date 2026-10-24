@@ -101,7 +101,8 @@ impl Concept {
         vd.field_item("parent", Item::GameConcept);
         if let Some(token) = vd.field_value("texture") {
             // TODO: check the file's resolution and check it against framesize and frame keys
-            if !token.is("piety") {
+            // The docs say these special values use the player's piety or legitimacy icon
+            if !token.is("piety") && !token.is("legitimacy") {
                 data.fileset.verify_exists(token);
             }
         }

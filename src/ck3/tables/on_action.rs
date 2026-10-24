@@ -230,7 +230,13 @@ pub const ON_ACTION_SCOPES: &str = "
 		liege = character
 		list = { characters = character }
 	}
-	on_courtier_ready_to_move_to_pool = on_courtier_decided_to_move_to_pool
+	on_courtier_ready_to_move_to_pool = {
+		root = character
+		courtier = character
+		liege = character
+		list = { characters = character }
+		destination = province
+	}
 	on_guest_arrived_from_pool = {
 		root = character
 		guest = character
@@ -242,7 +248,7 @@ pub const ON_ACTION_SCOPES: &str = "
 		guest = character
 		host = character
 		list = { characters = character }
-		destination = province # TODO: verify scope type
+		destination = province
 	}
 	on_join_court = {
 		root = character

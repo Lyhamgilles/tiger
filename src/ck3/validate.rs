@@ -105,12 +105,14 @@ pub fn validate_cost(block: &Block, data: &Everything, sc: &mut ScopeContext) {
     vd.field_script_value("gold", sc);
     vd.field_script_value("herd", sc);
     vd.field_script_value("influence", sc);
+    vd.field_script_value("merit", sc);
     vd.field_script_value("prestige", sc);
     vd.field_script_value("piety", sc);
     vd.field_script_value("renown", sc);
     vd.field_script_value("treasury", sc);
     vd.field_script_value("treasury_or_gold", sc);
     vd.field_bool("round");
+    vd.field_bool("clamp_to_zero");
 }
 
 pub fn validate_traits(block: &Block, data: &Everything) {
