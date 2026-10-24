@@ -115,30 +115,16 @@ impl DbKind for ActivityType {
         vd.field_bool("notify_player_can_join_activity");
         vd.field_item("activity_group_type", Item::ActivityGroupType);
 
-        // undocumented
         if block.has_key("guest_description") {
-            let mut sc = ScopeContext::new(Scopes::Character, key);
+            let mut sc = build_character_activity_sc(key);
             vd.field_validated_sc("guest_description", &mut sc, validate_desc);
         } else {
             let loca = format!("{key}_guest_desc");
             data.verify_exists_implied(Item::Localization, &loca, key);
         }
 
-        let ch_host_activity_sc = |key: &Token| {
-            let mut sc = ScopeContext::new(Scopes::Character, key);
-            sc.define_name("host", Scopes::Character, key);
-            sc.define_name("activity", Scopes::Activity, key);
-            sc
-        };
-        let ac_host_activity_sc = |key: &Token| {
-            let mut sc = ScopeContext::new(Scopes::Activity, key);
-            sc.define_name("host", Scopes::Character, key);
-            sc.define_name("activity", Scopes::Activity, key);
-            sc
-        };
-
         if block.has_key("conclusion_description") {
-            let mut sc = ch_host_activity_sc(key);
+            let mut sc = build_character_activity_sc(key);
             vd.field_validated_sc("conclusion_description", &mut sc, validate_desc);
         } else {
             let loca = format!("{key}_conclusion_desc");
@@ -167,12 +153,11 @@ impl DbKind for ActivityType {
                 special_guests_sc.define_name(key.as_str(), Scopes::Character, key);
             }
         }
+        // The docs say each option category is a scope holding the flag of the selected option
         if let Some(block) = block.get_field_block("options") {
-            for (_, block) in block.iter_definitions() {
-                for (key, _) in block.iter_definitions() {
-                    join_chance_sc.define_name(key.as_str(), Scopes::Flag, key);
-                    max_guests_sc.define_name(key.as_str(), Scopes::Flag, key);
-                }
+            for (key, _) in block.iter_definitions() {
+                join_chance_sc.define_name(key.as_str(), Scopes::Flag, key);
+                max_guests_sc.define_name(key.as_str(), Scopes::Flag, key);
             }
         }
 
@@ -214,12 +199,13 @@ impl DbKind for ActivityType {
         });
         vd.field_script_value_no_breakdown("ai_select_num_provinces", &mut sc);
 
-        vd.field_trigger_builder("is_valid", Tooltipped::No, ac_host_activity_sc);
-        vd.field_effect_builder("on_invalidated", Tooltipped::No, ac_host_activity_sc);
-        vd.field_effect_builder("on_host_death", Tooltipped::No, ac_host_activity_sc);
+        vd.field_trigger_builder("is_valid", Tooltipped::No, build_activity_sc);
+        vd.field_effect_builder("on_invalidated", Tooltipped::No, build_activity_sc);
+        vd.field_effect_builder("on_host_death", Tooltipped::No, build_activity_sc);
 
         vd.field_choice("province_filter", PROVINCE_FILTERS);
         vd.field_choice("ai_province_filter", PROVINCE_FILTERS);
+        warn_deprecated_province_filters(block);
         let province_filter = block.get_field_value("province_filter");
         let ai_province_filter = block.get_field_value("ai_province_filter");
         if let Some(province_filter) = province_filter
@@ -251,11 +237,10 @@ impl DbKind for ActivityType {
 
         let mut sc = ScopeContext::new(Scopes::Province, key);
         sc.define_name("host", Scopes::Character, key);
-        vd.field_script_value_no_breakdown("province_score", &mut sc);
-
         if has_special_option {
             sc.define_name("special_option", Scopes::Flag, key);
         }
+        vd.field_script_value_no_breakdown("province_score", &mut sc);
         vd.field_trigger("is_location_valid", Tooltipped::No, &mut sc);
 
         sc.define_name("score", Scopes::Value, key);
@@ -347,12 +332,12 @@ impl DbKind for ActivityType {
             // TODO: can we validate the key against anything?
             vd.unknown_block_fields(|_, block| {
                 let mut vd = Validator::new(block, data);
-                vd.field_trigger_builder("is_available", Tooltipped::No, ac_host_activity_sc);
+                vd.field_trigger_builder("is_available", Tooltipped::No, build_activity_sc);
                 vd.field_list_items("locales", Item::ActivityLocale);
             });
         });
 
-        let mut sc = ch_host_activity_sc(key);
+        let mut sc = build_character_activity_sc(key);
         vd.field_validated_block_sc("locale_cooldown", &mut sc, validate_duration);
         vd.field_validated_block_sc("auto_select_locale_cooldown", &mut sc, validate_duration);
         for field in &[
@@ -367,16 +352,15 @@ impl DbKind for ActivityType {
             "on_active_state_pulse",
             "on_complete",
         ] {
-            vd.field_effect_builder(field, Tooltipped::No, ch_host_activity_sc);
+            vd.field_effect_builder(field, Tooltipped::No, build_character_activity_sc);
         }
-        vd.field_effect_builder("on_start", Tooltipped::No, |key| {
-            let mut sc = ch_host_activity_sc(key);
-            sc.change_root(Scopes::Activity, key);
-            sc
-        });
+        vd.field_effect_builder("on_start", Tooltipped::No, build_activity_sc);
 
-        sc.change_root(Scopes::None, key);
-        vd.field_validated_block_sc("early_locale_opening_duration", &mut sc, validate_duration);
+        vd.field_validated_block_rooted(
+            "early_locale_opening_duration",
+            Scopes::Character,
+            validate_duration,
+        );
 
         vd.field_bool("open_invite");
 
@@ -417,15 +401,22 @@ impl DbKind for ActivityType {
             });
         });
 
-        let mut sc = ScopeContext::new(Scopes::Activity, key);
-        sc.define_name("host", Scopes::Character, key);
-        sc.define_name("activity", Scopes::Activity, key);
+        let mut sc = build_activity_sc(key);
         vd.multi_field_validated("map_entity", |bv, data| match bv {
             BV::Value(token) => data.verify_exists(Item::Entity, token),
             BV::Block(block) => {
                 let mut vd = Validator::new(block, data);
                 vd.field_trigger("trigger", Tooltipped::No, &mut sc);
                 vd.field_item("reference", Item::Entity);
+            }
+        });
+        vd.multi_field_validated("header_background", |bv, data| match bv {
+            BV::Value(token) => data.verify_exists(Item::File, token),
+            BV::Block(block) => {
+                let mut vd = Validator::new(block, data);
+                vd.field_trigger_rooted("trigger", Tooltipped::No, Scopes::Character);
+                vd.req_field("reference");
+                vd.field_item("reference", Item::File);
             }
         });
         vd.multi_field_validated_block("background", |block, data| {
@@ -454,12 +445,41 @@ impl DbKind for ActivityType {
             validate_tes(key, block, data, has_special_option);
         });
 
-        // undocumented
-        vd.field_validated_block("pulse_actions", |block, data| {
-            let mut vd = Validator::new(block, data);
-            vd.field_list_items("entries", Item::ActivityPulseAction);
-            vd.field_numeric_range("chance_of_no_event", 0.0..=100.0);
-        });
+        vd.field_validated_block("pulse_actions", validate_pulse_actions);
+    }
+}
+
+fn build_activity_sc(key: &Token) -> ScopeContext {
+    let mut sc = ScopeContext::new(Scopes::Activity, key);
+    sc.define_name("host", Scopes::Character, key);
+    sc.define_name("activity", Scopes::Activity, key);
+    sc.define_name("province", Scopes::Province, key);
+    sc
+}
+
+fn build_character_activity_sc(key: &Token) -> ScopeContext {
+    let mut sc = ScopeContext::new(Scopes::Character, key);
+    sc.define_name("host", Scopes::Character, key);
+    sc.define_name("activity", Scopes::Activity, key);
+    sc.define_name("province", Scopes::Province, key);
+    sc
+}
+
+fn validate_pulse_actions(block: &Block, data: &Everything) {
+    let mut vd = Validator::new(block, data);
+    vd.field_list_items("entries", Item::ActivityPulseAction);
+    vd.field_script_value_no_breakdown_builder("chance_of_no_event", build_activity_sc);
+}
+
+/// The docs say `holy_sites_realm` still reads as `anointment_candidates`
+pub fn warn_deprecated_province_filters(block: &Block) {
+    for field in ["province_filter", "ai_province_filter"] {
+        if let Some(token) = block.get_field_value(field)
+            && token.is("holy_sites_realm")
+        {
+            let msg = "should use `anointment_candidates` instead of `holy_sites_realm`";
+            warn(ErrorKey::Deprecated).msg(msg).loc(token).push();
+        }
     }
 }
 
@@ -495,9 +515,7 @@ fn validate_window_characters(key: &Token, block: &Block, data: &Everything) {
     data.verify_exists_implied(Item::Localization, &loca, key);
     vd.field_item("camera", Item::PortraitCamera);
     vd.field_effect_builder("effect", Tooltipped::No, |key| {
-        let mut sc = ScopeContext::new(Scopes::Activity, key);
-        sc.define_name("activity", Scopes::Activity, key);
-        sc.define_name("host", Scopes::Character, key);
+        let mut sc = build_activity_sc(key);
         sc.define_name("player", Scopes::Character, key);
         sc.define_list("characters", Scopes::Character, key);
         sc
@@ -557,22 +575,16 @@ fn validate_phase(key: &Token, block: &Block, data: &Everything, has_special_opt
     }
     vd.field_trigger("is_shown", Tooltipped::No, &mut sc);
     vd.field_trigger("can_pick", Tooltipped::Yes, &mut sc);
-    vd.field_trigger_builder("is_valid", Tooltipped::No, |key| {
-        let mut sc = ScopeContext::new(Scopes::Activity, key);
-        sc.define_name("host", Scopes::Character, key);
-        sc.define_name("province", Scopes::Province, key);
-        sc
-    });
+    // TODO: verify scope:activity. The docs leave it out here, but give it everywhere else.
+    vd.field_trigger_builder("is_valid", Tooltipped::No, build_activity_sc);
 
-    let mut sc = ScopeContext::new(Scopes::Character, key);
-    sc.define_name("activity", Scopes::Activity, key);
-    sc.define_name("host", Scopes::Character, key);
+    let mut sc = build_character_activity_sc(key);
     vd.field_effect("on_enter_phase", Tooltipped::No, &mut sc);
     vd.field_effect("on_phase_active", Tooltipped::No, &mut sc);
+    vd.field_effect_builder("on_phase_active_activity", Tooltipped::No, build_activity_sc);
     vd.field_effect("on_end", Tooltipped::No, &mut sc);
     vd.field_effect("on_monthly_pulse", Tooltipped::No, &mut sc);
     vd.field_effect("on_weekly_pulse", Tooltipped::No, &mut sc);
-    sc.define_name("province", Scopes::Province, key);
     vd.field_effect("on_invalidated", Tooltipped::No, &mut sc);
 
     let mut sc = ScopeContext::new(Scopes::Character, key);
@@ -582,6 +594,8 @@ fn validate_phase(key: &Token, block: &Block, data: &Everything, has_special_opt
         sc.define_name("special_option", Scopes::Flag, key);
     }
     vd.field_validated_block_sc("cost", &mut sc, validate_cost);
+
+    vd.field_validated_block("pulse_actions", validate_pulse_actions);
 }
 
 fn validate_special_guest(
@@ -611,8 +625,7 @@ fn validate_special_guest(
     special_guests_sc.define_name("host", Scopes::Character, key);
     vd.field_trigger("can_pick", Tooltipped::No, special_guests_sc);
     vd.field_effect("on_invite", Tooltipped::No, special_guests_sc);
-
-    vd.field_script_value_no_breakdown_rooted("ai_will_do", Scopes::Character);
+    vd.field_script_value_no_breakdown("ai_will_do", special_guests_sc);
 }
 
 #[derive(Clone, Debug)]
@@ -639,11 +652,10 @@ impl DbKind for ActivityLocale {
         let define = "NGameIcons|ACTIVITY_LOCALE_ICON_PATH";
         data.verify_icon(define, key, ".dds");
 
-        let mut sc = ScopeContext::new(Scopes::Character, key);
-        sc.define_name("host", Scopes::Character, key);
-        sc.define_name("activity", Scopes::Activity, key);
-        vd.field_trigger("is_available", Tooltipped::No, &mut sc);
-        vd.field_script_value("chance", &mut sc);
+        vd.field_trigger_builder("is_available", Tooltipped::No, build_activity_sc);
+        vd.field_script_value_builder("chance", build_activity_sc);
+
+        let mut sc = build_character_activity_sc(key);
         vd.field_effect("on_enter_locale", Tooltipped::No, &mut sc);
         vd.field_script_value_no_breakdown("ai_will_do", &mut sc);
         vd.field_validated_block_sc("cooldown", &mut sc, validate_duration);
@@ -662,9 +674,7 @@ fn validate_visuals(key: &Token, bv: &BV, data: &Everything) {
         BV::Value(token) => validate_visual(token, data),
         BV::Block(block) => {
             let mut vd = Validator::new(block, data);
-            let mut sc = ScopeContext::new(Scopes::Activity, key);
-            sc.define_name("activity", Scopes::Activity, key);
-            sc.define_name("host", Scopes::Character, key);
+            let mut sc = build_activity_sc(key);
             vd.field_trigger("trigger", Tooltipped::No, &mut sc);
             vd.req_field("reference");
             if let Some(token) = vd.field_value("reference") {
@@ -692,6 +702,7 @@ impl DbKind for GuestInviteRule {
         let mut vd = Validator::new(block, data);
         data.verify_exists(Item::Localization, key);
 
+        vd.field_bool("locked");
         vd.field_effect_builder("effect", Tooltipped::No, |key| {
             let mut sc = ScopeContext::new(Scopes::Character, key);
             // TODO: scope:special_option
@@ -726,10 +737,7 @@ impl DbKind for ActivityPulseAction {
         let icon = vd.field_value("icon").unwrap_or(key);
         data.verify_icon(define, icon, ".dds");
 
-        let mut sc = ScopeContext::new(Scopes::Activity, key);
-        sc.define_name("activity", Scopes::Activity, key);
-        sc.define_name("host", Scopes::Character, key);
-        sc.define_name("province", Scopes::Province, key);
+        let mut sc = build_activity_sc(key);
         vd.field_trigger("is_valid", Tooltipped::No, &mut sc);
         vd.field_script_value("weight", &mut sc);
         vd.field_effect("effect", Tooltipped::No, &mut sc);
@@ -766,7 +774,6 @@ impl DbKind for ActivityIntent {
         for field in &["is_shown", "is_valid"] {
             vd.field_trigger_builder(field, Tooltipped::No, |key| {
                 let mut sc = ScopeContext::new(Scopes::Character, key);
-                sc.define_name("magnificence", Scopes::Value, key);
                 sc.define_name("special_option", Scopes::Flag, key);
                 sc
             });
@@ -775,7 +782,6 @@ impl DbKind for ActivityIntent {
         vd.field_trigger_builder("is_target_valid", Tooltipped::No, |key| {
             let mut sc = ScopeContext::new(Scopes::Character, key);
             sc.define_name("target", Scopes::Character, key);
-            sc.define_name("special_option", Scopes::Flag, key);
             sc
         });
 
@@ -788,7 +794,7 @@ impl DbKind for ActivityIntent {
 
         vd.field_script_value_no_breakdown_builder("ai_will_do", |key| {
             let mut sc = ScopeContext::new(Scopes::Character, key);
-            sc.define_name("activity", Scopes::Activity, key);
+            sc.define_name("special_option", Scopes::Flag, key);
             sc
         });
 
@@ -798,7 +804,6 @@ impl DbKind for ActivityIntent {
         vd.field_script_value_no_breakdown_builder("ai_target_score", |key| {
             let mut sc = ScopeContext::new(Scopes::Character, key);
             sc.define_name("target", Scopes::Character, key);
-            sc.define_name("special_option", Scopes::Flag, key);
             sc
         });
 
@@ -806,6 +811,18 @@ impl DbKind for ActivityIntent {
         vd.field_validated_sc("scripted_animation", &mut sc, validate_scripted_animation);
     }
 }
+
+// LAST UPDATED CK3 VERSION 1.20.1
+// `personal` must stay first, see `validate_option`
+const TENET_FILTERS: &[&str] = &[
+    "personal",
+    "known_character",
+    "known_faith",
+    "active_faith",
+    "active_rite",
+    "core_faith",
+    "core_rite",
+];
 
 fn validate_option(
     key: &Token,
@@ -830,12 +847,16 @@ fn validate_option(
     vd.field_trigger("is_valid", Tooltipped::Yes, &mut sc);
     vd.field_script_value_no_breakdown("ai_will_do", &mut sc);
 
-    vd.field_effect_builder("on_start", Tooltipped::No, |key| {
-        let mut sc = ScopeContext::new(Scopes::Activity, key);
-        sc.define_name("activity", Scopes::Activity, key);
-        sc.define_name("host", Scopes::Character, key);
-        sc
-    });
+    vd.field_bool("tenet_doctrine_based_activity");
+    for field in ["tenet_1", "tenet_2", "tenet_3"] {
+        vd.field_choice(field, TENET_FILTERS);
+    }
+    // The docs say `personal` is not supported for doctrines
+    for field in ["doctrine_1", "doctrine_2", "doctrine_3"] {
+        vd.field_choice(field, &TENET_FILTERS[1..]);
+    }
+
+    vd.field_effect_builder("on_start", Tooltipped::No, build_activity_sc);
 
     vd.field_validated("default", |bv, data| {
         match bv {
@@ -879,8 +900,10 @@ impl ActivityGroupType {
 }
 
 impl DbKind for ActivityGroupType {
-    fn validate(&self, _key: &Token, block: &Block, data: &Everything) {
+    fn validate(&self, key: &Token, block: &Block, data: &Everything) {
         let mut vd = Validator::new(block, data);
+        let loca = format!("activity_group_type_{key}");
+        data.verify_exists_implied(Item::Localization, &loca, key);
 
         vd.field_integer("sort_order");
         vd.field_list("gui_tags");

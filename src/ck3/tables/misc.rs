@@ -551,6 +551,7 @@ pub const REWARD_ITEMS: &[&str] = &["newsletter_crown"];
 // Gathered from vanilla game files
 pub const PRISON_TYPES: &[&str] = &["dungeon", "house_arrest"];
 
+// LAST UPDATED CK3 VERSION 1.20.1
 // Gathered from common/activities/activity_types/_activity_type.info
 pub const PROVINCE_FILTERS: &[&str] = &[
     "capital",
@@ -560,6 +561,8 @@ pub const PROVINCE_FILTERS: &[&str] = &[
     "holy_sites",
     "holy_sites_domain",
     "holy_sites_realm",
+    "anointment_candidates",
+    "same_faith",
     "domicile",
     "domicile_domain",
     "domicile_realm",
@@ -567,6 +570,7 @@ pub const PROVINCE_FILTERS: &[&str] = &[
     "top_liege_border_outer",
     "landed_title",
     "geographical_region",
+    "clerical_region_theocracy_capitals",
     "all",
 ];
 
