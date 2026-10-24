@@ -31,26 +31,30 @@ impl DbKind for Decision {
         let mut vd = Validator::new(block, data);
         let mut sc = ScopeContext::new(Scopes::Character, key);
 
-        if let Some(block) = block.get_field_block("widget") {
-            // Add builtin scopes added by known widget controllers
-            if let Some(controller) = block.get_field_value("controller") {
-                if controller.is("decision_option_list_controller") {
-                    for block in block.get_field_blocks("item") {
-                        if let Some(token) = block.get_field_value("value") {
-                            sc.define_name(token.as_str(), Scopes::Bool, token);
-                        }
+        // Add builtin scopes added by known widget controllers.
+        // The controller is either `widget = { controller = ... }` or the short `widget = ...`.
+        let widget = block.get_field_block("widget");
+        let controller = match widget {
+            Some(widget) => widget.get_field_value("controller"),
+            None => block.get_field_value("widget"),
+        };
+        if let Some(controller) = controller {
+            if controller.is("decision_option_list_controller") {
+                for block in widget.map(|w| w.get_field_blocks("item")).unwrap_or_default() {
+                    if let Some(token) = block.get_field_value("value") {
+                        sc.define_name(token.as_str(), Scopes::Bool, token);
                     }
-                } else if controller.is("create_holy_order") {
-                    sc.define_name("ruler", Scopes::Character, controller);
-                    // The docs say it has the same data context as `revoke_holy_order_lease`
-                    sc.define_name("barony", Scopes::LandedTitle, controller);
-                } else if controller.is("revoke_holy_order_lease") {
-                    sc.define_name("barony", Scopes::LandedTitle, controller);
-                } else if controller.is("select_scope_object") {
-                    sc.define_name("selected_item", Scopes::all_but_none(), controller);
-                } else if SELECT_TITLE_CONTROLLERS.contains(&controller.as_str()) {
-                    sc.define_name("title", Scopes::LandedTitle, controller);
                 }
+            } else if controller.is("create_holy_order") {
+                sc.define_name("ruler", Scopes::Character, controller);
+                // The docs say it has the same data context as `revoke_holy_order_lease`
+                sc.define_name("barony", Scopes::LandedTitle, controller);
+            } else if controller.is("revoke_holy_order_lease") {
+                sc.define_name("barony", Scopes::LandedTitle, controller);
+            } else if controller.is("select_scope_object") {
+                sc.define_name("selected_item", Scopes::all_but_none(), controller);
+            } else if SELECT_TITLE_CONTROLLERS.contains(&controller.as_str()) {
+                sc.define_name("title", Scopes::LandedTitle, controller);
             }
         }
 

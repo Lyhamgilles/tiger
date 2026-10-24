@@ -120,8 +120,12 @@ impl DbKind for CharacterTemplate {
             vd.field_item_or_target("culture", sc, Item::Culture, Scopes::Culture);
             vd.multi_field_validated_block_sc("random_culture", sc, validate_random_culture);
         }
-        // TODO: figure out what a culture group is, and whether this key still works at all
-        vd.field_value("random_culture_in_group");
+        // The docs say it picks a culture with the same heritage as this one
+        if from_block.has_key("random_culture_in_group") {
+            vd.field_value("random_culture_in_group");
+        } else {
+            vd.field_item_or_target("random_culture_in_group", sc, Item::Culture, Scopes::Culture);
+        }
         if from_block.has_key("faith") {
             vd.field_value("faith");
             vd.multi_field_block("random_faith");

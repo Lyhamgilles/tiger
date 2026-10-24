@@ -196,9 +196,12 @@ fn validate_bookmark_character(
                 data.characters.get_culture(id, start_date),
                 name,
             );
-            // `religion` is a loc key, but vanilla uses the key of the character's rite
+            // `religion` is a loc key, but vanilla uses the key of the character's rite.
+            // Skip characters whose history gives only a faith, which implies its main rite.
             if let Some(religion) = block.get_field_value("religion")
                 && data.item_exists(Item::RiteType, religion.as_str())
+                && (data.characters.get_rite(id, start_date).is_some()
+                    || data.characters.get_faith(id, start_date).is_none())
             {
                 validate_bookmark_against_history(
                     Some(religion),

@@ -31,7 +31,6 @@ impl DbKind for OpinionModifier {
 
         vd.field_integer("opinion");
 
-        // TODO: if true, must define either monthly_change or delay duration
         vd.field_bool("decaying");
         let decaying = block.get_field_bool("decaying").unwrap_or(false);
         for field in &["delay_days", "delay_weeks", "delay_months", "delay_years"] {
@@ -49,7 +48,12 @@ impl DbKind for OpinionModifier {
         }
 
         // The docs give the rules below
-        vd.field_numeric("monthly_change");
+        if decaying && !block.has_key("monthly_change") && duration.is_none() {
+            let msg = "decaying opinion needs `monthly_change` or a duration";
+            err(ErrorKey::FieldMissing).msg(msg).loc(key).push();
+        }
+        // The docs say negative values are clamped to 0
+        vd.field_numeric_range("monthly_change", 0.0..);
         if let Some(key) = block.get_key("monthly_change") {
             if let Some(duration) = duration {
                 let msg = "`monthly_change` and a duration are mutually exclusive";

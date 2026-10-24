@@ -45,7 +45,6 @@ pub const AI_TARGETS: &[&str] = &[
     "sub_realm_domicile_owners",
     "nearby_domicile_owners",
     "situation_participant_group",
-    // undocumented
     "diarch",
     "other_faith_heads",
     "head_of_rite",
@@ -551,6 +550,9 @@ pub const PRISON_TYPES: &[&str] = &["dungeon", "house_arrest"];
 
 // LAST UPDATED CK3 VERSION 1.20.1
 // Gathered from common/activities/activity_types/_activity_type.info
+/// Old province filters and the ones that replace them
+pub const OLD_PROVINCE_FILTERS: &[(&str, &str)] = &[("holy_sites_realm", "anointment_candidates")];
+
 pub const PROVINCE_FILTERS: &[&str] = &[
     "capital",
     "domain",

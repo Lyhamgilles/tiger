@@ -1109,6 +1109,19 @@ fn match_trigger_bv(
                     let itype = Item::SituationParticipantGroupParameter;
                     data.verify_exists_max_sev(itype, token, max_sev);
                 }
+            } else if name.is("is_puppet_action_valid") {
+                #[cfg(feature = "ck3")]
+                if let Some(token) = bv.expect_value() {
+                    data.verify_exists_max_sev(Item::PuppetAction, token, max_sev);
+                    // The docs say the game errors if the action is not `type = trigger`
+                    if let Some((_, block)) =
+                        data.database.get_key_block(Item::PuppetAction, token.as_str())
+                        && !block.field_value_is("type", "trigger")
+                    {
+                        let msg = "puppet action needs `type = trigger`";
+                        err(ErrorKey::Validation).msg(msg).loc(token).push();
+                    }
+                }
             } else if name.is("save_temporary_opinion_value_as") {
                 if let Some(block) = bv.expect_block() {
                     let mut vd = Validator::new(block, data);
@@ -1756,6 +1769,12 @@ fn validate_argument_internal(
         #[cfg(any(feature = "vic3", feature = "ck3", feature = "eu5"))]
         ArgumentValue::Identifier(kind) => {
             validate_identifier(arg, kind, Severity::Error);
+        }
+        #[cfg(feature = "ck3")]
+        ArgumentValue::Index => {
+            if arg.expect_integer().is_some_and(|i| i < 1) {
+                err(ErrorKey::Range).msg("index starts at 1").loc(arg).push();
+            }
         }
         ArgumentValue::UncheckedValue => (),
         #[cfg(feature = "ck3")]

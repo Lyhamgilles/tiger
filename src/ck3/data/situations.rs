@@ -322,6 +322,21 @@ fn validate_phase(key: &Token, block: &Block, data: &Everything, situation: &Tok
 
             // The docs say `none` is the default but not a valid value
             vd.field_choice("takeover_type", &["points", "duration"]);
+            // The game logs errors for these
+            if let Some(points) = block.get_key("takeover_points") {
+                if let Some(duration) = block.get_key("takeover_duration") {
+                    let msg = "`takeover_points` and `takeover_duration` can't be used together";
+                    err(ErrorKey::Validation).msg(msg).loc(points).loc_msg(duration, "here").push();
+                } else if !block.field_value_is("takeover_type", "points") {
+                    let msg = "`takeover_points` needs `takeover_type = points`";
+                    err(ErrorKey::Validation).msg(msg).loc(points).push();
+                }
+            } else if let Some(duration) = block.get_key("takeover_duration")
+                && !block.field_value_is("takeover_type", "duration")
+            {
+                let msg = "`takeover_duration` needs `takeover_type = duration`";
+                err(ErrorKey::Validation).msg(msg).loc(duration).push();
+            }
             vd.field_integer("takeover_points");
             vd.field_integer("weight");
             vd.field_validated_block_sc(

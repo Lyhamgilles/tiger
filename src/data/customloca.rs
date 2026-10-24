@@ -116,11 +116,20 @@ impl CustomLocalization {
                 );
             }
         } else {
+            // The CK3 docs say missing keys are then skipped or empty, unless `random_valid`
+            let optional = !block.field_value_is("random_valid", "yes")
+                && block.get_field_value("if_invalid_loc").is_some_and(|v| !v.is("return_loc_key"));
             for block in block.get_field_blocks("text") {
                 if let Some(key) = block.get_field_value("localization_key") {
                     if let Some(token) = suffix_token {
                         let loca = format!("{key}{suffix_str}");
-                        data.localization.verify_exists_implied_lang(&loca, token, lang);
+                        if optional {
+                            data.localization.mark_used_return_exists(&loca);
+                        } else {
+                            data.localization.verify_exists_implied_lang(&loca, token, lang);
+                        }
+                    } else if optional {
+                        data.localization.mark_used_return_exists(key.as_str());
                     } else {
                         data.localization.verify_exists_lang(key, lang);
                     }

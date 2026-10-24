@@ -91,6 +91,14 @@ fn validate_inner(
                 let msg = format!("nothing to {token} yet");
                 warn(ErrorKey::Logic).msg(msg).loc(token).push();
             }
+            // The CK3 docs say it must not be 0
+            if Game::is_ck3()
+                && token.is("round_to")
+                && let Some(value) = bv.get_value()
+                && value.get_number() == Some(0.0)
+            {
+                err(ErrorKey::Range).msg("`round_to` must not be 0").loc(value).push();
+            }
             validate_bv(bv, data, sc, check_desc);
             made_changes = true;
             saved_value = false;

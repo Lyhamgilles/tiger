@@ -254,6 +254,7 @@ impl Trait {
         vd.field_bool("good");
         // The docs say `good` needs a genetic trait or an inherit chance
         if let Some(key) = self.block.get_key("good")
+            && self.block.field_value_is("good", "yes")
             && !self.block.field_value_is("genetic", "yes")
             && !self.block.has_key("inherit_chance")
         {

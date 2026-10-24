@@ -3,7 +3,7 @@ use std::path::PathBuf;
 use crate::block::Block;
 use crate::everything::Everything;
 use crate::fileset::{FileEntry, FileHandler};
-use crate::helpers::{TigerHashMap, dup_error};
+use crate::helpers::{TigerHashMap, TigerHashSet, dup_error};
 use crate::item::Item;
 use crate::parse::ParserMemory;
 use crate::pdxfile::PdxFile;
@@ -45,6 +45,23 @@ impl CharacterInteractionCategories {
     pub fn validate(&self, data: &Everything) {
         for item in self.categories.values() {
             item.validate(data);
+        }
+
+        // The docs say the game logs an error for categories that no interaction uses
+        let used: TigerHashSet<&str> = data
+            .database
+            .iter_key_block(Item::CharacterInteraction)
+            .filter_map(|(_, block)| block.get_field_value("category"))
+            .map(Token::as_str)
+            .collect();
+        for item in self.categories.values() {
+            if !used.contains(item.key.as_str())
+                && !item.block.field_value_is("default", "yes")
+                && !item.block.field_value_is("favorite_interactions", "yes")
+            {
+                let msg = "no interaction uses this category";
+                err(ErrorKey::Validation).msg(msg).loc(&item.key).push();
+            }
         }
     }
 }
@@ -90,9 +107,12 @@ impl FileHandler<Block> for CharacterInteractionCategories {
             // if no index, the item will warn about that in validate
         }
 
+        // The docs say the first one read is kept
+        let mut categories: Vec<_> = self.categories.values().collect();
+        categories.sort_by_key(|item| item.key.loc);
         for field in ["default", "favorite_interactions"] {
             let mut first: Option<&Token> = None;
-            for item in self.categories.values() {
+            for item in &categories {
                 if item.block.field_value_is(field, "yes") {
                     if let Some(other) = first {
                         let msg = format!("only one category can have `{field} = yes`");

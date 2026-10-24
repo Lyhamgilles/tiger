@@ -11,7 +11,6 @@ use crate::report::Severity;
 use crate::scopes::Scopes;
 use crate::token::Token;
 use crate::tooltipped::Tooltipped;
-use crate::validate::validate_color;
 use crate::validator::{Validator, ValueValidator};
 
 #[derive(Clone, Debug)]
@@ -46,7 +45,7 @@ impl DbKind for House {
         vd.field_item("dynasty", Item::Dynasty);
         // The docs say these two are read but not used by the game
         vd.field_value("forced_coa_religiongroup");
-        vd.field_validated_block("color", validate_color);
+        vd.advice_field("color", "not used by the game");
     }
 }
 

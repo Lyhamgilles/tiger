@@ -53,7 +53,7 @@ impl DbKind for PuppetType {
         // The docs say these need a fallback entry without a trigger
         for field in ["asset", "animation"] {
             let blocks = block.get_field_blocks(field);
-            if !blocks.is_empty() && blocks.iter().all(|block| block.has_key("trigger")) {
+            if blocks.iter().all(|block| block.has_key("trigger")) {
                 let msg = format!("`{field}` needs a fallback entry without `trigger`");
                 err(ErrorKey::FieldMissing).msg(msg).loc(key).push();
             }

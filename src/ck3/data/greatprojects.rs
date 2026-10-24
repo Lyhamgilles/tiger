@@ -53,7 +53,8 @@ impl DbKind for GreatProjectType {
 
         // The docs say a triggered icon list needs a fallback entry without a trigger
         let icons = block.get_field_blocks("icon");
-        if !icons.is_empty() && icons.iter().all(|icon| icon.has_key("trigger")) {
+        let has_value = !block.get_field_values("icon").is_empty();
+        if !icons.is_empty() && !has_value && icons.iter().all(|icon| icon.has_key("trigger")) {
             let msg = "`icon` needs a fallback entry without `trigger`";
             err(ErrorKey::FieldMissing).msg(msg).loc(key).push();
         }
@@ -267,7 +268,7 @@ fn validate_contribution(key: &Token, block: &Block, data: &Everything, gp_key: 
     data.verify_exists_implied(Item::Localization, &loca, key);
     let loca = format!("great_project_type_{gp_key}_contribution_{key}_desc");
     data.verify_exists_implied(Item::Localization, &loca, key);
-    let loca = format!("great_project_type_{gp_key}_contribution_name_{key}");
+    let loca = format!("great_project_{gp_key}_contribution_name_{key}");
     data.localization.suggest(&loca, key);
 
     let sc_builder = |key: &Token| {

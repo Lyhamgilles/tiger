@@ -90,13 +90,14 @@ impl DbKind for Struggle {
                 if let Some(vec) = block.get_field_list("ending_decisions") {
                     has_ending |= !vec.is_empty();
                 }
+                // The docs say an ending phase also counts
+                has_ending |= block.has_key("on_start");
             });
             if !has_one {
                 warn(ErrorKey::Validation).msg("must have at least one phase").loc(block).push();
             }
-            // TODO: Verify if it is OK to have an ending phase but no ending decisions
             if !has_ending {
-                let msg = "must have at least one phase with ending_decisions";
+                let msg = "must have at least one phase with ending_decisions or an ending phase";
                 warn(ErrorKey::Validation).msg(msg).loc(block).push();
             }
         });

@@ -1,6 +1,6 @@
 use crate::block::{BV, Block, Field};
 use crate::ck3::data::scripted_animations::validate_scripted_animation;
-use crate::ck3::tables::misc::PROVINCE_FILTERS;
+use crate::ck3::tables::misc::{OLD_PROVINCE_FILTERS, PROVINCE_FILTERS};
 use crate::ck3::validate::{validate_ai_targets, validate_cost, validate_quick_trigger};
 use crate::context::ScopeContext;
 use crate::db::{Db, DbKind};
@@ -481,13 +481,13 @@ fn validate_pulse_actions(block: &Block, data: &Everything) {
     vd.field_script_value_no_breakdown_builder("chance_of_no_event", build_activity_sc);
 }
 
-/// The docs say `holy_sites_realm` still reads as `anointment_candidates`
+/// Warn about the old province filters that the docs say still work
 pub fn warn_deprecated_province_filters(block: &Block) {
     for field in ["province_filter", "ai_province_filter"] {
         if let Some(token) = block.get_field_value(field)
-            && token.is("holy_sites_realm")
+            && let Some((_, new)) = OLD_PROVINCE_FILTERS.iter().find(|(old, _)| token.is(old))
         {
-            let msg = "should use `anointment_candidates` instead of `holy_sites_realm`";
+            let msg = format!("should use `{new}` instead of `{token}`");
             warn(ErrorKey::Deprecated).msg(msg).loc(token).push();
         }
     }

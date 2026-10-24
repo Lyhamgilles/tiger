@@ -52,6 +52,8 @@ impl DbKind for CharacterInteraction {
             } else if target_type.is("title") {
                 sc.define_name("target", Scopes::LandedTitle, target_type);
                 sc.define_name("landed_title", Scopes::LandedTitle, target_type);
+            } else if target_type.is("court_position_type") {
+                sc.define_name("target", Scopes::CourtPositionType, target_type);
             }
         } else if let Some(interface) = block.get_field_value("interface") {
             if interface.is("interfere_in_war") || interface.is("call_ally") {
@@ -159,7 +161,6 @@ impl DbKind for CharacterInteraction {
             Scopes::Character,
             validate_duration,
         );
-        // undocumented, but used in marriage interaction
         vd.field_validated_block_rerooted(
             "recipient_recieve_cooldown",
             &sc,
@@ -249,13 +250,16 @@ impl DbKind for CharacterInteraction {
             vd.field_trigger("can_be_changed", Tooltipped::No, &mut sc.clone());
             vd.field_validated_sc("current_description", &mut sc.clone(), validate_desc);
             vd.field_bool("can_invalidate_interaction");
-            vd.field_script_value("scheme_preview_success_chance", &mut sc);
-            vd.field_script_value("scheme_preview_success_chance_max", &mut sc);
-            vd.field_script_value("scheme_preview_secrecy", &mut sc);
+            // The docs say the root is the actor
+            let mut actor_sc = sc.clone();
+            actor_sc.change_root(Scopes::Character, key);
+            vd.field_script_value("scheme_preview_success_chance", &mut actor_sc);
+            vd.field_script_value("scheme_preview_success_chance_max", &mut actor_sc);
+            vd.field_script_value("scheme_preview_secrecy", &mut actor_sc);
 
             // undocumented
 
-            vd.field_script_value("scheme_preview_speed", &mut sc);
+            vd.field_script_value("scheme_preview_speed", &mut actor_sc);
         });
 
         vd.field_bool("send_options_exclusive");

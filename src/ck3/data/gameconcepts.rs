@@ -7,7 +7,7 @@ use crate::helpers::{TigerHashMap, dup_error};
 use crate::item::Item;
 use crate::parse::ParserMemory;
 use crate::pdxfile::PdxFile;
-use crate::report::{ErrorKey, warn};
+use crate::report::{ErrorKey, err, warn};
 use crate::token::Token;
 use crate::validator::Validator;
 
@@ -64,7 +64,14 @@ impl FileHandler<Block> for GameConcepts {
     fn finalize(&mut self) {
         for (key, concept) in &self.concepts {
             for token in concept.block.get_multi_field_list("alias") {
-                self.aliases.insert(token.as_str(), key);
+                // The docs say the game logs an error and skips such an alias
+                if self.concepts.contains_key(token.as_str()) {
+                    let msg = format!("alias {token} is also a game concept");
+                    err(ErrorKey::Conflict).msg(msg).loc(token).push();
+                } else if let Some(other) = self.aliases.insert(token.as_str(), key) {
+                    let msg = format!("alias {token} is also an alias of game concept {other}");
+                    err(ErrorKey::Conflict).msg(msg).loc(token).push();
+                }
             }
         }
     }

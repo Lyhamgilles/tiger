@@ -301,6 +301,7 @@ fn validate_modifiers(vd: &mut Validator, is_duchy_capital: bool) {
         vd.field_item("parameter", Item::CultureParameter);
         vd.field_item("terrain", Item::Terrain);
         vd.field_bool("is_coastal");
+        vd.field_bool("is_riverside");
         validate_modifs(block, data, ModifKinds::Province, vd);
     });
     vd.multi_field_validated_block("province_dynasty_modifier", |block, data| {

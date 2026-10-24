@@ -333,8 +333,8 @@ const SCOPE_PREFIX: &[(Scopes, &str, Scopes, ArgumentValue)] = {
     use crate::scopes::ArgumentValue::*;
     &[
         (Scopes::None, "accolade_type", Scopes::AccoladeType, Item(Item::AccoladeType)),
-        (Scopes::Activity, "activity_doctrine", Scopes::Doctrine, Identifier("index")),
-        (Scopes::Activity, "activity_tenet", Scopes::Tenet, Identifier("index")),
+        (Scopes::Activity, "activity_doctrine", Scopes::Doctrine, Index),
+        (Scopes::Activity, "activity_tenet", Scopes::Tenet, Index),
         (Scopes::None, "activity_type", Scopes::ActivityType, Item(Item::ActivityType)),
         (Scopes::Character, "aptitude", Scopes::Value, Item(Item::CourtPosition)),
         (Scopes::Character, "aptitude_score", Scopes::Value, Item(Item::CourtPosition)),
@@ -518,7 +518,7 @@ const SCOPE_TO_SCOPE_REMOVED: &[(&str, &str, &str)] = &[
     ("activity_owner", "1.9", "replaced by `activity_host`"),
     ("activity_province", "1.9", "replaced by `activity_location`"),
     ("scheme_target", "1.13", "replaced by `scheme_target_character`"),
-    ("house_power", "1.19", "replaced by `house_aspiration`"),
+    ("house_power", "1.19", "replaced by `house_aspiration`, which was removed in 1.20"),
     ("primary_type", "1.19", ""),
     ("secondary_type", "1.19", ""),
     ("house_aspiration", "1.20", "scope type removed"),

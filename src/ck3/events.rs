@@ -255,7 +255,6 @@ fn validate_court_scene(block: &Block, data: &Everything, sc: &mut ScopeContext)
     vd.field_bool("show_timeout_info");
     vd.field_bool("should_pause_time");
     vd.field_target("court_owner", sc, Scopes::Character);
-    vd.field_item("scripted_animation", Item::ScriptedAnimation);
     vd.multi_field_validated_block("roles", |b, data| {
         for (key, bv) in b.iter_assignments_and_definitions_warn() {
             match bv {
@@ -266,6 +265,7 @@ fn validate_court_scene(block: &Block, data: &Everything, sc: &mut ScopeContext)
                     vd.field_item("group", Item::CourtSceneGroup);
                     vd.field_item("role", Item::CourtSceneRole);
                     vd.field_item("animation", Item::PortraitAnimation);
+                    vd.field_item("scripted_animation", Item::ScriptedAnimation);
                     vd.multi_field_validated_block("triggered_animation", |b, data| {
                         validate_triggered_animation(b, data, sc);
                     });

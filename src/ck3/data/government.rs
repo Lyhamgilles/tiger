@@ -118,7 +118,6 @@ impl DbKind for Government {
         vd.field_list_items("primary_heritages", Item::CultureHeritage);
         vd.field_list_items("preferred_religions", Item::Religion);
 
-        vd.field_bool("court_generate_spouses");
         if let Some(token) = vd.field_value("court_generate_commanders")
             && !token.is("yes")
             && !token.is("no")

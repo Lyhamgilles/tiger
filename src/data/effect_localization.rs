@@ -113,7 +113,7 @@ pub fn validate_effect_localization(caller: &Token, data: &Everything, tooltippe
                 warn(ErrorKey::MissingPerspective).msg(msg).loc(caller).push();
             }
             Tooltipped::Past => {
-                for sfx in &["global_part", "first_part", "third_past"] {
+                for sfx in &["global_past", "first_past", "third_past"] {
                     let loca = format!("{caller}_{sfx}");
                     if data.item_exists(Item::Localization, &loca) {
                         return;

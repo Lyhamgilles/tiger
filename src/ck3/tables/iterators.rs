@@ -126,7 +126,7 @@ const ITERATOR: &[(Scopes, &str, Scopes)] = &[
     (Scopes::LandedTitle, "county_struggle", Scopes::Struggle),
     (Scopes::Character, "court_position_candidate", Scopes::Character),
     (Scopes::Character, "court_position_employer", Scopes::Character),
-    (Scopes::Character, "court_position_holder", Scopes::Character), // TODO find out how court position is supplied
+    (Scopes::Character, "court_position_holder", Scopes::Character),
     (Scopes::None, "court_position_type", Scopes::CourtPositionType),
     (Scopes::Character, "courtier", Scopes::Character),
     (Scopes::Character, "courtier_away", Scopes::Character),

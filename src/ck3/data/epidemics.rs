@@ -145,9 +145,18 @@ fn validate_outbreak_level(block: &Block, data: &Everything) {
             });
         }
         for field in ["holder_event", "liege_event", "realm_event"] {
-            vd.field_validated_value(field, |_, mut vd| {
+            vd.field_validated_value(field, |key, mut vd| {
                 if !vd.maybe_is("") {
                     vd.item(Item::Event);
+                    // The docs give the events these scopes
+                    let mut sc = ScopeContext::new(Scopes::Character, key);
+                    sc.define_name("epidemic", Scopes::Epidemic, key);
+                    sc.define_name("province", Scopes::Province, key);
+                    let token = vd.value();
+                    data.event_check_scope(token, &mut sc);
+                    if let Some(mut event_sc) = sc.root_for_event(token, data) {
+                        data.event_validate_call(token, &mut event_sc);
+                    }
                 }
             });
         }

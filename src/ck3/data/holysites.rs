@@ -85,7 +85,7 @@ impl DbKind for HolySite {
 
         vd.replaced_field("character_modifier", "`faith_character_modifier`");
         // The docs say `holy_site_<key>_effects` is only used if it exists
-        vd.multi_field_validated_block("faith_character_modifier", |block, data| {
+        vd.field_validated_block("faith_character_modifier", |block, data| {
             let mut vd = Validator::new(block, data);
             vd.field_item("name", Item::Localization);
             validate_modifs(block, data, ModifKinds::Character, vd);

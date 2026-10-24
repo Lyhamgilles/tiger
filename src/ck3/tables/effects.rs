@@ -493,7 +493,6 @@ const SCOPE_EFFECT: &[(Scopes, &str, Effect)] = &[
         "decline_invitation_for_character",
         Removed("1.9", "replaced by `decline_activity_invite`"),
     ),
-    (Scopes::Character, "decline_invitation_for_character", Scope(Scopes::Activity)),
     (Scopes::TravelPlan, "delay_travel_plan", Vb(validate_delay_travel_plan)),
     (Scopes::Army, "deplete_army_by_percentage", ScriptValue),
     (Scopes::Character, "depose", Yes),
@@ -744,7 +743,7 @@ const SCOPE_EFFECT: &[(Scopes, &str, Effect)] = &[
     (Scopes::TravelPlan, "remove_all_travel_plan_modifier_instances", Item(Item::Modifier)),
     (Scopes::Artifact, "remove_artifact_feature_group", Item(Item::ArtifactFeatureGroup)),
     (Scopes::Artifact, "remove_artifact_modifier", Item(Item::Modifier)),
-    (Scopes::Character, "remove_barter_goods", Yes),
+    (Scopes::Character, "remove_barter_goods", ScriptValue), // TODO: no docs on effect value
     (Scopes::Culture, "remove_bonus_fascination_innovation", Yes),
     (Scopes::Province, "remove_building", Item(Item::Building)),
     (Scopes::TravelPlan, "remove_character", Scope(Scopes::Character)),

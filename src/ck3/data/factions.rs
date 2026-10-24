@@ -65,10 +65,11 @@ impl DbKind for Faction {
             sc.define_name("faction", Scopes::Faction, key);
             validate_modifiers_with_base(block, data, &mut sc);
         });
+        let claimant = block.get_field_bool("claimant") == Some(true);
         vd.field_validated_key_block("ai_create_score", |key, block, data| {
             let mut sc = ScopeContext::new(Scopes::Character, key);
             sc.define_name("target", Scopes::Character, key);
-            if block.get_field_bool("claimant") == Some(true) {
+            if claimant {
                 sc.define_name("claimant", Scopes::Character, key);
                 sc.define_name("title", Scopes::LandedTitle, key);
             }

@@ -7,7 +7,7 @@ use std::sync::atomic::Ordering;
 
 use atomic_enum::atomic_enum;
 
-use crate::block::{BV, Block, Comparator, Eq::*};
+use crate::block::{BV, Block, Comparator, Eq::*, Field};
 use crate::ck3::data::houses::House;
 use crate::ck3::validate::validate_portrait_modifier_overrides;
 use crate::context::ScopeContext;
@@ -84,27 +84,34 @@ impl Characters {
                 };
                 let new_priority = priority(&block);
                 let other_priority = priority(&other.block);
-                match new_priority.cmp(&other_priority) {
-                    std::cmp::Ordering::Equal => {
-                        err(ErrorKey::DuplicateCharacter)
-                            .strong()
-                            .msg("duplicate character id")
-                            .info("this will create two characters with the same id")
-                            .loc(&other.key)
-                            .loc_msg(&key, "duplicate")
-                            .push();
-                        self.duplicates.push(Character::new(key, block));
+                // Compare with every earlier definition, not only the one that won
+                let same_priority = if new_priority == other_priority {
+                    Some(other.key.clone())
+                } else {
+                    self.duplicates
+                        .iter()
+                        .find(|dup| dup.key == key && priority(&dup.block) == new_priority)
+                        .map(|dup| dup.key.clone())
+                };
+                if let Some(other_key) = same_priority {
+                    err(ErrorKey::DuplicateCharacter)
+                        .strong()
+                        .msg("duplicate character id")
+                        .info("this will create two characters with the same id")
+                        .loc(other_key)
+                        .loc_msg(&key, "duplicate")
+                        .push();
+                    self.duplicates.push(Character::new(key, block));
+                } else if new_priority > other_priority {
+                    // TODO: only the base attributes and birth date are overridden; the
+                    // history of the other definition is added to this one.
+                    if let Some(other) =
+                        self.characters.insert(key.as_str(), Character::new(key, block))
+                    {
+                        self.duplicates.push(other);
                     }
-                    std::cmp::Ordering::Greater => {
-                        // TODO: only the base attributes and birth date are overridden; the
-                        // history of the other definition is added to this one.
-                        if let Some(other) =
-                            self.characters.insert(key.as_str(), Character::new(key, block))
-                        {
-                            self.duplicates.push(other);
-                        }
-                    }
-                    std::cmp::Ordering::Less => self.duplicates.push(Character::new(key, block)),
+                } else {
+                    self.duplicates.push(Character::new(key, block));
                 }
             }
         } else {
@@ -179,6 +186,10 @@ impl Characters {
 
     pub fn get_rite(&self, id: &Token, date: Date) -> Option<&Token> {
         self.characters.get(id.as_str()).and_then(|ch| ch.get_rite(date))
+    }
+
+    pub fn get_faith(&self, id: &Token, date: Date) -> Option<&Token> {
+        self.characters.get(id.as_str()).and_then(|ch| ch.get_faith(date))
     }
 
     pub fn validate(&self, data: &Everything) {
@@ -346,6 +357,10 @@ impl Character {
 
     pub fn get_rite(&self, date: Date) -> Option<&Token> {
         self.block.get_field_value_at_date("rite", date)
+    }
+
+    pub fn get_faith(&self, date: Date) -> Option<&Token> {
+        self.block.get_field_value_at_date("faith", date)
     }
 
     fn validate_life_event(
@@ -684,18 +699,53 @@ impl Character {
         vd.field_validated_block("portrait_override", validate_portrait_override);
 
         let mut life_events = Vec::new();
+        // Date entries without life events, which are not checked by `validate_life`
+        let mut other_entries = Vec::new();
         let gender = Gender::from_female_bool(self.block.get_field_bool("female").unwrap_or(false));
-        vd.validate_history_blocks(|date, _key, block, data| {
+        vd.validate_history_blocks(|date, key, block, data| {
+            let mut has_life_event = false;
+            let mut has_spouse = false;
             for (index, (key, bv)) in block.iter_assignments_and_definitions_warn().enumerate() {
                 if let Some((life_event_type, token)) =
                     Self::validate_life_event(date, gender, key, bv, data, &mut sc)
                 {
+                    // The docs say only one spouse per date entry
+                    if life_event_type == LifeEventType::AddSpouse {
+                        if has_spouse {
+                            let msg = "only one spouse can be added per date entry";
+                            warn(ErrorKey::History).msg(msg).loc(key).push();
+                        }
+                        has_spouse = true;
+                    }
                     life_events.push(LifeEvent { date, index, event: life_event_type, token });
+                    has_life_event = true;
                 }
+            }
+            // The docs allow entries outside the character's life if they only have this
+            let even_if_dead =
+                block.iter_fields().all(|Field(key, _, _)| key.is("effect_even_if_dead"));
+            if !has_life_event && !even_if_dead {
+                other_entries.push((date, key.clone()));
             }
         });
 
         life_events.sort_unstable();
+        let birth = life_events.iter().find(|e| e.event == LifeEventType::Birth).map(|e| e.date);
+        let death = life_events.iter().find(|e| e.event == LifeEventType::Death).map(|e| e.date);
+        for (date, key) in other_entries {
+            if let Some(birth) = birth
+                && date < birth
+            {
+                let msg = format!("{} was not born yet on {date}", self.key);
+                warn(ErrorKey::History).msg(msg).loc(key).push();
+            } else if let Some(death) = death
+                && date > death
+            {
+                let msg =
+                    format!("{} was not alive on {date}, had already died on {death}", self.key);
+                warn(ErrorKey::History).msg(msg).loc(key).push();
+            }
+        }
         Self::validate_life(&self.key, life_events);
     }
 

@@ -5,6 +5,7 @@ use crate::db::{Db, DbKind};
 use crate::everything::Everything;
 use crate::game::GameFlags;
 use crate::item::{Item, ItemLoader};
+use crate::report::{ErrorKey, warn};
 use crate::scopes::Scopes;
 use crate::token::Token;
 
@@ -40,9 +41,6 @@ impl DbKind for ScriptedCost {
                 sc.define_name("speed_aptitude", Scopes::Value, key);
                 sc.define_name("safety_aptitude", Scopes::Value, key);
             }
-            "deactivate_accolade" => {
-                sc = ScopeContext::new(Scopes::Accolade, key);
-            }
             "create_accolade" => {
                 sc.define_name("owner", Scopes::Character, key);
             }
@@ -61,6 +59,9 @@ impl DbKind for ScriptedCost {
                 sc.define_list("artifacts", Scopes::Artifact, key);
             }
             _ => {
+                // The docs say the game only looks up the named costs
+                let msg = format!("the game doesn't use a scripted cost named `{key}`");
+                warn(ErrorKey::Validation).msg(msg).loc(key).push();
                 sc.set_strict_scopes(false);
             }
         }

@@ -283,6 +283,8 @@ pub fn validate_maa_upgrade(block: &Block, data: &Everything) {
     }
     // undocumented
     vd.field_item("men_at_arms", Item::MenAtArms);
+    vd.field_integer("max_size");
+    vd.advice_field("pursue", "docs say `pursue` but it's `pursuit`");
     validate_maa_stats(&mut vd);
 }
 

@@ -157,7 +157,7 @@ pub const ON_ACTION_SCOPES: &str = "
 	on_leave_council = {
 		root = character
 		council_task = council_task # undocumented
-		councillor = character
+		councillor = character # undocumented
 	}
 	on_fired_from_council = {
 		root = character
@@ -468,7 +468,12 @@ pub const ON_ACTION_SCOPES: &str = "
 		old_faith = faith
 		old_rite = rite
 	}
-	on_rite_created = on_rite_change
+	on_rite_created = {
+		root = character
+		old_faith = faith
+		old_rite = rite
+		new_rite = rite # TODO: verify scope type
+	}
 	on_rite_updated = {
 		root = rite
 		changed_tenets_or_doctrines = bool # TODO: verify scope type

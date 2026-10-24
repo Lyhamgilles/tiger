@@ -177,6 +177,13 @@ impl DbKind for Culture {
             vd.field_item("requires_dlc_flag", Item::DlcFeature);
             vd.field_item("fallback", Item::CultureTradition);
         });
+        vd.multi_field_validated_block("dlc_fallback_pillar", |block, data| {
+            let mut vd = Validator::new(block, data);
+            vd.req_field("fallback");
+            vd.req_field("requires_dlc_flag");
+            vd.field_item("fallback", Item::CulturePillar);
+            vd.field_item("requires_dlc_flag", Item::DlcFeature);
+        });
 
         vd.field_item("history_loc_override", Item::Localization);
     }
@@ -580,9 +587,11 @@ impl NameEquivalency {
                 if let Some(&other) = seen.get(&(female, name.as_str())) {
                     let msg = format!("name {name} is in two name equivalency lists");
                     err(ErrorKey::Conflict).msg(msg).loc(name).loc_msg(other, "other list").push();
-                } else {
-                    seen.insert((female, name.as_str()), name);
                 }
+            }
+            // Add the names after checking the list, so that repeats within it are not reported
+            for name in block.iter_values() {
+                seen.entry((female, name.as_str())).or_insert(name);
             }
         }
     }

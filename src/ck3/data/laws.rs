@@ -86,8 +86,9 @@ impl DbKind for Law {
         let mut sc = ScopeContext::new(Scopes::Character, key);
 
         data.verify_exists(Item::Localization, key);
+        // The docs say these two are optional
         let loca = format!("{key}_effects");
-        data.verify_exists_implied(Item::Localization, &loca, key);
+        data.mark_used(Item::Localization, &loca);
         let loca = format!("{key}_effects_not_in_prev");
         data.mark_used(Item::Localization, &loca);
         let loca = format!("{key}_subname");
@@ -143,7 +144,6 @@ impl DbKind for Law {
 
         vd.field_validated_block("succession", |block, data| {
             let mut vd = Validator::new(block, data);
-            // "generate" and "player_heir" are undocumented
             vd.field_choice(
                 "order_of_succession",
                 &[

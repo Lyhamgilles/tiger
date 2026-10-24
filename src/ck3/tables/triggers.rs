@@ -506,7 +506,7 @@ const TRIGGER: &[(Scopes, &str, Trigger)] = &[
         Block(&[("target", Scope(Scopes::Doctrine)), ("+value", CompareValue)]),
     ),
     (
-        Scopes::Character.union(Scopes::Rite),
+        Scopes::Character,
         "doctrine_fulfillment_value",
         Block(&[("target", Scope(Scopes::Doctrine)), ("+value", CompareValue)]),
     ),
@@ -1609,7 +1609,7 @@ const TRIGGER: &[(Scopes, &str, Trigger)] = &[
     (Scopes::Character, "is_powerful_vassal_of", Scope(Scopes::Character)),
     (Scopes::Character, "is_pregnant", Boolean),
     (Scopes::Character, "is_primary_heir_of", Scope(Scopes::Character)),
-    (Scopes::Character, "is_puppet_action_valid", Item(Item::PuppetAction)),
+    (Scopes::Character, "is_puppet_action_valid", Special),
     (Scopes::Character, "is_puppet_of_type", Item(Item::PuppetType)),
     (Scopes::Army, "is_raid_army", Boolean),
     (Scopes::Province, "is_raided", Boolean),
@@ -1619,7 +1619,6 @@ const TRIGGER: &[(Scopes, &str, Trigger)] = &[
     (Scopes::Character, "is_rightful_liege_of", Scope(Scopes::Character)),
     (Scopes::Rite, "is_rite_enabled", Boolean),
     (Scopes::Province, "is_river_province", Boolean),
-    (Scopes::Province, "is_riverside_province", Boolean),
     (Scopes::LandedTitle, "is_riverside_county", Boolean),
     (Scopes::Province, "is_riverside_province", Boolean),
     (Scopes::Province, "is_ruined_building_being_reconstructed", Boolean),
@@ -1761,7 +1760,6 @@ const TRIGGER: &[(Scopes, &str, Trigger)] = &[
     (Scopes::Legend, "legend_start_date", CompareDate),
     (Scopes::Character, "legitimacy", CompareValueWarnEq),
     (Scopes::Character, "legitimacy_level", CompareValue),
-    (Scopes::Character, "levies_to_liege", CompareValue),
     (Scopes::Secret, "local_player_knows_this_secret", Boolean),
     (Scopes::None, "local_variable_list_size", Special),
     (Scopes::Character, "long_term_gold", CompareValueWarnEq),
@@ -2737,12 +2735,7 @@ const TRIGGER_COMPLEX: &[(Scopes, &str, ArgumentValue, Scopes)] = {
         // CK3 1.20
         (Scopes::Rite, "divergence", Scope(Scopes::Rite), Scopes::Value),
         (Scopes::Doctrine, "doctrine_divergence", Scope(Scopes::Doctrine), Scopes::Value),
-        (
-            Scopes::Character.union(Scopes::Rite),
-            "doctrine_fulfillment_value",
-            Scope(Scopes::Doctrine),
-            Scopes::Value,
-        ),
+        (Scopes::Character, "doctrine_fulfillment_value", Scope(Scopes::Doctrine), Scopes::Value),
         (Scopes::Character, "expected_rite_fulfillment_change", Scope(Scopes::Rite), Scopes::Value),
         (
             Scopes::Character,

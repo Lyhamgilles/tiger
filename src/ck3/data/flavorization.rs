@@ -78,6 +78,9 @@ impl DbKind for Flavorization {
         });
         vd.field_value("flag");
         vd.field_list_items("governments", Item::GovernmentType);
+        if flavor_type == "domicile" {
+            vd.req_field("domicile_type");
+        }
         vd.field_item("domicile_type", Item::DomicileType);
         vd.field_list_items("name_lists", Item::NameList);
         vd.field_list_items("heritages", Item::CultureHeritage);
@@ -94,6 +97,9 @@ impl DbKind for Flavorization {
         );
         vd.field_item("council_position", Item::CouncilPosition);
         vd.field_list_items("de_jure_liege", Item::Title);
+        if flavor_type != "title" || !block.field_value_is("tier", "barony") {
+            vd.ban_field("holding", || "`type = title` with `tier = barony`");
+        }
         vd.field_item("holding", Item::HoldingType);
         vd.field_list_items("titles", Item::Title);
         // TODO: this allows vassal contract flags but what else?

@@ -771,9 +771,10 @@ pub fn validate_create_title_and_vassal_change(
     vd.req_field("type");
     vd.req_field("save_scope_as");
     if let Some(history_type) = vd.field_value("type") {
+        // The docs' list of types for use in script leaves out `destroyed`
         let valid_types: Vec<_> = TITLE_HISTORY_TYPES
             .iter()
-            .filter(|t| !BANNED_TITLE_HISTORY_TYPES.contains(t))
+            .filter(|t| !BANNED_TITLE_HISTORY_TYPES.contains(t) && **t != "destroyed")
             .copied()
             .collect();
         if BANNED_TITLE_HISTORY_TYPES.contains(&history_type.as_str()) {
@@ -1441,7 +1442,11 @@ pub fn validate_set_coa(
     sc: &mut ScopeContext,
     _tooltipped: Tooltipped,
 ) {
-    let options = Scopes::LandedTitle | Scopes::Dynasty | Scopes::DynastyHouse;
+    let options = Scopes::LandedTitle
+        | Scopes::Dynasty
+        | Scopes::DynastyHouse
+        | Scopes::Organization
+        | Scopes::Confederation;
     vd.item_or_target(sc, Item::Coa, options);
 }
 
@@ -2713,6 +2718,7 @@ pub fn validate_create_holy_site(
     _tooltipped: Tooltipped,
 ) {
     vd.req_field("type");
+    // TODO: verify. The docs say a "holy_site_scope_object", which may be a holy site scope.
     vd.field_item_or_target("type", sc, Item::HolySite, Scopes::HolySiteType);
     vd.field_bool("eminent");
     vd.field_target("county", sc, Scopes::LandedTitle);

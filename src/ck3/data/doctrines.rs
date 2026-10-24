@@ -120,7 +120,6 @@ impl DbKind for Doctrine {
         // `selected_doctrines` holds the selected core tenets and doctrines
         let selected = Scopes::Doctrine | Scopes::Tenet;
         let mut sc = ScopeContext::new(Scopes::Faith, key);
-        sc.define_list("selected_doctrines", selected, key);
         let mut can_pick_sc = ScopeContext::new(Scopes::Faith, key);
         can_pick_sc.define_name("actor", Scopes::Character, key);
         can_pick_sc.define_list("selected_doctrines", selected, key);

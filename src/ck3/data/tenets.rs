@@ -52,16 +52,16 @@ impl DbKind for Tenet {
         // `selected_doctrines` holds the selected core tenets and doctrines
         let selected = Scopes::Doctrine | Scopes::Tenet;
         let mut faith_sc = ScopeContext::new(Scopes::Faith, key);
-        faith_sc.define_list("selected_doctrines", selected, key);
         let mut can_pick_sc = ScopeContext::new(Scopes::Faith, key);
         can_pick_sc.define_name("actor", Scopes::Character, key);
         can_pick_sc.define_list("selected_doctrines", selected, key);
-        // undocumented for piety_cost, but vanilla uses it there (like for doctrines)
         let mut rite_sc = ScopeContext::new(Scopes::Rite, key);
-        rite_sc.define_list("selected_doctrines", selected, key);
+        let mut cost_sc = ScopeContext::new(Scopes::Rite, key);
+        // undocumented for piety_cost, but vanilla uses it there (like for doctrines)
+        cost_sc.define_list("selected_doctrines", selected, key);
 
-        // Documented as a triggered block, but vanilla uses plain icon names
-        if !vd.field_validated("icon", |bv, data| match bv {
+        // Documented as a triggered list, but vanilla uses plain icon names
+        if !vd.multi_field_validated("icon", |bv, data| match bv {
             BV::Value(token) => data.verify_icon("NGameIcons|TENET_TYPE_ICON_PATH", token, ".dds"),
             BV::Block(block) => {
                 let mut vd = Validator::new(block, data);
@@ -91,7 +91,7 @@ impl DbKind for Tenet {
             // TODO: verify. Vanilla uses `name = yes` only in doctrine parameters.
             vd.unknown_value_fields(validate_parameter_value);
         });
-        vd.field_script_value("piety_cost", &mut rite_sc);
+        vd.field_script_value("piety_cost", &mut cost_sc);
         vd.field_trigger("is_shown", Tooltipped::No, &mut faith_sc);
         vd.field_trigger("can_pick", Tooltipped::Yes, &mut can_pick_sc);
         // TODO: verify tooltip
@@ -117,9 +117,10 @@ impl DbKind for Tenet {
             let vd = Validator::new(block, data);
             validate_modifs(block, data, ModifKinds::Character, vd);
         });
-        vd.field_validated_block("personal_tenet_parameters", |block, data| {
-            let mut vd = Validator::new(block, data);
-            vd.values();
+        vd.field_validated_list("personal_tenet_parameters", |flag, data| {
+            // The docs say they are localized with the doctrine parameter prefix
+            let loca = format!("doctrine_parameter_{flag}");
+            data.verify_exists_implied(Item::Localization, &loca, flag);
         });
     }
 }

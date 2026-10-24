@@ -277,10 +277,19 @@ fn validate_animation(block: &Block, data: &Everything) {
             sc.define_name("ai_zeal", Scopes::Value, key);
             validate_modifiers_with_base(block, data, &mut sc);
         });
-        vd.field_validated_block("portrait_modifier", |block, data| {
-            let vd = Validator::new(block, data);
-            validate_portrait_modifiers(block, data, vd);
-        });
+        if Game::is_ck3() {
+            // The docs say they have the same syntax as for the default animation
+            vd.multi_field_validated_block("portrait_modifier", |block, data| {
+                let mut vd = Validator::new(block, data);
+                vd.field_trigger_rooted("trigger", Tooltipped::No, Scopes::Character);
+                validate_portrait_modifiers(block, data, vd);
+            });
+        } else {
+            vd.field_validated_block("portrait_modifier", |block, data| {
+                let vd = Validator::new(block, data);
+                validate_portrait_modifiers(block, data, vd);
+            });
+        }
         vd.field_item("portrait_modifier_pack", Item::PortraitModifierPack);
         if Game::is_ck3() {
             vd.multi_field_validated_block("portrait_modifier_set", validate_portrait_modifier_set);

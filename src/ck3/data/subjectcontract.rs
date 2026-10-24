@@ -85,8 +85,18 @@ impl DbKind for SubjectContract {
         vd.field_trigger("can_be_changed", Tooltipped::Yes, &mut sc);
         vd.field_item("icon", Item::TextIcon);
 
+        let by_score = block.get_field_bool("defaults_to_highest_valid_level").unwrap_or(false);
         vd.field_validated_block("obligation_levels", |block, data| {
             let mut vd = Validator::new(block, data);
+            // The docs say the first level is the default if none is marked
+            let marked = block
+                .iter_definitions()
+                .any(|(k, b)| k.is("default") || b.get_field_bool("default").unwrap_or(false));
+            let first_default = if marked || by_score {
+                None
+            } else {
+                block.iter_definitions().next().map(|(k, _)| k)
+            };
             vd.unknown_block_fields(|key, block| {
                 if !key.is("default") {
                     data.verify_exists(Item::Localization, key);
@@ -140,7 +150,7 @@ impl DbKind for SubjectContract {
                     validate_modifs(block, data, ModifKinds::Character, vd);
                 });
                 // The docs say the default level must not have these
-                if block.get_field_bool("default").unwrap_or(false) {
+                if block.get_field_bool("default").unwrap_or(false) || first_default == Some(key) {
                     for field in ["is_shown", "is_valid"] {
                         if let Some(key) = block.get_key(field) {
                             let msg =
