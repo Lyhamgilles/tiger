@@ -32,9 +32,7 @@ impl DbKind for Faction {
             data.verify_exists(Item::Localization, key);
         }
 
-        // TODO: docs say description but vanilla uses desc. Verify.
-        vd.field_validated_rooted("desc", Scopes::Faction, validate_desc);
-        if !vd.field_validated_rooted("description", Scopes::Faction, validate_desc) {
+        if !vd.field_validated_rooted("desc", Scopes::Faction, validate_desc) {
             let loca = format!("{key}_desc");
             data.verify_exists_implied(Item::Localization, &loca, key);
         }
@@ -86,7 +84,11 @@ impl DbKind for Faction {
             sc.define_name("target", Scopes::Character, key);
             validate_modifiers_with_base(block, data, &mut sc);
         });
-        vd.field_script_value_rooted("county_power", Scopes::LandedTitle);
+        vd.field_script_value_builder("county_power", |key| {
+            let mut sc = ScopeContext::new(Scopes::LandedTitle, key);
+            sc.define_name("faction", Scopes::Faction, key);
+            sc
+        });
         vd.field_validated_block_rooted(
             "ai_demand_chance",
             Scopes::Faction,

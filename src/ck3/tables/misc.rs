@@ -482,18 +482,16 @@ pub const DLC_MUSIC: &[&str] = &[
     "group_fp4_moodtrack",
 ];
 
-// LAST UPDATED CK3 VERSION 1.13.0.1
+// LAST UPDATED CK3 VERSION 1.20.1
 // taken from the governments .info file
 pub const GOVERNMENT_RULES: &[&str] = &[
     "create_cadet_branches",
-    "religious",
     "court_generate_spouses",
     "council",
     "rulers_should_have_dynasty",
     "regiments_prestige_as_gold",
     "dynasty_named_realms",
     "legitimacy",
-    "administrative",
     "admin_allows_holding_multiple_primary_tier_titles",
     "landless_playable",
     "allow_out_of_realm_inheritance",
@@ -503,6 +501,8 @@ pub const GOVERNMENT_RULES: &[&str] = &[
     "mercenary",
     "state_faith",
     "treasury",
+    "treasury_vassal_development",
+    "add_religious_subordinates_for_treasury",
     "merit",
     "uses_county_fertility",
     "replenishes_county_fertility",
@@ -512,7 +512,6 @@ pub const GOVERNMENT_RULES: &[&str] = &[
     "subject_men_at_arms",
     "use_title_tier_modifiers",
     "inherit_from_dynastic_government",
-    "dynasty_named_realms",
     "deny_powerful_vassal",
     "use_maa_maintenance",
     "no_capital_movement_cooldown",
@@ -531,7 +530,6 @@ pub const GOVERNMENT_RULES: &[&str] = &[
     "count_tributaries_for_title_requirements",
     "radiance",
     "disable_regnal_numbers",
-    // undocumented
     "gain_legitimacy_becoming_tributary",
     "regiments_use_barter_goods_as_gold",
     "government_ignores_rightful_liege_penalties",

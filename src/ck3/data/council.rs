@@ -95,6 +95,7 @@ impl DbKind for CouncilPosition {
         vd.field_effect_builder("on_lose_position", Tooltipped::No, |key| {
             let mut sc = ScopeContext::new(Scopes::Character, key);
             sc.define_name("councillor_liege", Scopes::Character, key);
+            sc.define_name("new_councillor", Scopes::Character, key);
             sc
         });
         vd.field_effect_builder("on_fired_from_position", Tooltipped::No, |key| {
@@ -115,9 +116,7 @@ impl DbKind for CouncilPosition {
             vd.field_bool("click_to_front");
         });
 
-        // undocumented
-
-        vd.field_script_value("councillor_cooldown_days", &mut sc);
+        vd.field_script_value_rooted("councillor_cooldown_days", Scopes::Character);
         vd.field_item("pool_character_config", Item::PoolSelector);
     }
 }
@@ -168,11 +167,11 @@ impl DbKind for CouncilTask {
         if block.field_value_is("task_type", "task_type_county") {
             vd.field_choice(
                 "county_target",
-                &["all", "realm", "domain", "neighbor_land", "neighbor_land_or_water"],
+                &["none", "all", "realm", "domain", "neighbor_land", "neighbor_land_or_water"],
             );
             vd.field_choice(
                 "ai_county_target",
-                &["all", "realm", "domain", "neighbor_land", "neighbor_land_or_water"],
+                &["none", "all", "realm", "domain", "neighbor_land", "neighbor_land_or_water"],
             );
             if let Some(token) = block.get_field_value("county_target")
                 && token.is("neighbor_land_or_water")
@@ -295,8 +294,12 @@ impl DbKind for CouncilTask {
         // TODO: you cannot redefine anything else than the court position, and that field MUST be redefined.
         vd.field_item("clone", Item::CouncilTask);
 
-        // undocumented
-        vd.field_script_value("ai_will_do", &mut sc);
+        vd.field_script_value_builder("ai_will_do", |key| {
+            let mut sc = ScopeContext::new(Scopes::Character, key);
+            sc.define_name("councillor", Scopes::Character, key);
+            sc.define_name("councillor_liege", Scopes::Character, key);
+            sc
+        });
         vd.field_item("skill", Item::Skill);
     }
 }
