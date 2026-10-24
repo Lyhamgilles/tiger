@@ -122,8 +122,8 @@ impl DbKind for ArtifactTemplate {
             validate_modifs(block, data, ModifKinds::Character, vd);
         });
 
-        // TODO: verify scope:artifact. The docs give it to every field except this one.
-        vd.field_script_value("ai_score", &mut sc);
+        // The docs give it only the root
+        vd.field_script_value_rooted("ai_score", Scopes::Character);
         vd.field_bool("unique");
     }
 }
