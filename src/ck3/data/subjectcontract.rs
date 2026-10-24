@@ -7,6 +7,7 @@ use crate::everything::Everything;
 use crate::game::GameFlags;
 use crate::item::{Item, ItemLoader};
 use crate::modif::validate_modifs;
+use crate::report::{ErrorKey, err};
 use crate::scopes::Scopes;
 use crate::token::Token;
 use crate::tooltipped::Tooltipped;
@@ -71,6 +72,15 @@ impl DbKind for SubjectContract {
 
         vd.field_trigger("is_shown", Tooltipped::No, &mut sc);
         vd.field_choice("display_mode", &["tree", "radiobutton", "checkbox", "hidden"]);
+        // The docs say the game logs an error otherwise
+        if let Some(token) = block.get_field_value("display_mode")
+            && token.is("checkbox")
+            && let Some(levels) = block.get_field_block("obligation_levels")
+            && levels.iter_definitions().count() > 2
+        {
+            let msg = "`display_mode = checkbox` allows at most two obligation levels";
+            err(ErrorKey::Validation).msg(msg).loc(token).push();
+        }
         vd.field_bool("defaults_to_highest_valid_level");
         vd.field_trigger("can_be_changed", Tooltipped::Yes, &mut sc);
         vd.field_item("icon", Item::TextIcon);
@@ -100,10 +110,15 @@ impl DbKind for SubjectContract {
                 vd.field_script_value("min_tax", &mut sc);
                 vd.field_script_value("min_herd", &mut sc);
                 vd.field_script_value("min_barter_goods", &mut sc);
+                vd.field_script_value("min_prestige", &mut sc);
+                vd.field_script_value("min_piety", &mut sc);
                 vd.field_validated_sc("contribution_desc", &mut sc, validate_desc);
                 vd.field_item("tax_contribution_postfix", Item::Localization);
                 vd.field_item("levies_contribution_postfix", Item::Localization);
                 vd.field_item("herd_contribution_postfix", Item::Localization);
+                vd.field_item("prestige_contribution_postfix", Item::Localization);
+                vd.field_item("piety_contribution_postfix", Item::Localization);
+                vd.field_item("barter_goods_contribution_postfix", Item::Localization);
                 vd.field_item("unclamped_contribution_label", Item::Localization);
                 vd.field_item("min_contribution_label", Item::Localization);
                 vd.advice_field("vassal_opinion", "replaced with `subject_opinion` in 1.16");
@@ -124,6 +139,16 @@ impl DbKind for SubjectContract {
                     let vd = Validator::new(block, data);
                     validate_modifs(block, data, ModifKinds::Character, vd);
                 });
+                // The docs say the default level must not have these
+                if block.get_field_bool("default").unwrap_or(false) {
+                    for field in ["is_shown", "is_valid"] {
+                        if let Some(key) = block.get_key(field) {
+                            let msg =
+                                format!("the default obligation level must not have `{field}`");
+                            err(ErrorKey::Validation).msg(msg).loc(key).push();
+                        }
+                    }
+                }
                 vd.field_trigger("is_shown", Tooltipped::No, &mut sc);
                 vd.field_trigger("is_valid", Tooltipped::Yes, &mut sc);
                 vd.field_bool("enable_title_maa");
@@ -131,6 +156,9 @@ impl DbKind for SubjectContract {
                 vd.field_script_value("tax_factor", &mut sc);
                 vd.field_script_value("levies_factor", &mut sc);
                 vd.field_script_value("herd_factor", &mut sc);
+                vd.field_script_value("prestige_factor", &mut sc);
+                vd.field_script_value("piety_factor", &mut sc);
+                vd.field_script_value("barter_goods_factor", &mut sc);
                 vd.field_item("appointment_trait_flag", Item::TraitFlag);
             });
         });
