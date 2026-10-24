@@ -1,4 +1,4 @@
-use crate::block::{BV, Block};
+use crate::block::{BV, Block, Field};
 use crate::ck3::data::scripted_animations::validate_scripted_animation;
 use crate::ck3::tables::misc::PROVINCE_FILTERS;
 use crate::ck3::validate::{validate_ai_targets, validate_cost, validate_quick_trigger};
@@ -67,8 +67,18 @@ impl DbKind for ActivityType {
         data.verify_icon(define, key, ".dds");
         data.verify_icon(define, key, "_header.dds");
 
-        let define = "NGameIcons|ACTIVITY_HEADER_BACKGROUND_PATH";
-        data.verify_icon(define, key, ".dds");
+        // The default header is not needed if a `header_background` always applies
+        let has_header = block.iter_fields().any(|Field(key, _, bv)| {
+            key.is("header_background")
+                && match bv {
+                    BV::Value(_) => true,
+                    BV::Block(block) => !block.has_key("trigger"),
+                }
+        });
+        if !has_header {
+            let define = "NGameIcons|ACTIVITY_HEADER_BACKGROUND_PATH";
+            data.verify_icon(define, key, ".dds");
+        }
 
         let mut vd = Validator::new(block, data);
         let has_special_option = block.has_key("special_option_category");

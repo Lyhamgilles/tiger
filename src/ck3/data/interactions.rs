@@ -295,7 +295,10 @@ impl DbKind for CharacterInteraction {
             warn(ErrorKey::Deprecated).msg(msg).loc(token).push();
         }
         vd.field_trigger_rooted("is_available", Tooltipped::Yes, Scopes::Character);
-        vd.field_validated_sc("ai_intermediary_accept", &mut sc.clone(), validate_ai_chance);
+        // The docs say the root is the intermediary
+        let mut isc = sc.clone();
+        isc.change_root(Scopes::Character, key);
+        vd.field_validated_sc("ai_intermediary_accept", &mut isc, validate_ai_chance);
 
         // These seem to be in character scope
         vd.field_validated_block_rerooted(

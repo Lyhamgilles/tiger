@@ -82,7 +82,6 @@ impl DbKind for MapEnvironment {
                 "Uncharted",
                 "Reinhard",
                 "ReinhardModified",
-                "Filmic",
                 "Filmic_Hable",
             ],
         );

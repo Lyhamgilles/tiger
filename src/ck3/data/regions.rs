@@ -52,7 +52,7 @@ impl DbKind for Region {
         vd.field_bool("generate_modifiers");
         vd.field_bool("graphical");
         vd.field_validated_block("color", validate_color);
-        vd.field_bool("should_remember_counties_order");
+        vd.advice_field("should_remember_counties_order", "removed in 1.20");
         vd.field_validated_list("counties", |token, data| {
             if !token.starts_with("c_") {
                 let msg = "only counties can be listed in the counties field";

@@ -1098,6 +1098,17 @@ fn match_trigger_bv(
                         Gene::verify_has_template(category.as_str(), template, data);
                     }
                 }
+            } else if name.is("has_situation_top_phase_parameter")
+                || name.is("has_sub_region_phase_parameter")
+            {
+                // Vanilla checks both the phase's own parameters and those of its modifier sets
+                #[cfg(feature = "ck3")]
+                if let Some(token) = bv.expect_value()
+                    && !data.item_exists(Item::SituationPhaseParameter, token.as_str())
+                {
+                    let itype = Item::SituationParticipantGroupParameter;
+                    data.verify_exists_max_sev(itype, token, max_sev);
+                }
             } else if name.is("save_temporary_opinion_value_as") {
                 if let Some(block) = bv.expect_block() {
                     let mut vd = Validator::new(block, data);

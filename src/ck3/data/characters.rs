@@ -535,6 +535,12 @@ impl Character {
         let mut death = None;
         let mut spouses = TigerHashSet::<Token>::default();
         let mut employed = false;
+        // Vanilla gives the saint trait in the death entry, sometimes before `death`
+        let death_dates: Vec<Date> = life_events
+            .iter()
+            .filter(|e| e.event == LifeEventType::Death)
+            .map(|e| e.date)
+            .collect();
 
         for LifeEvent { date, index: _, token, event } in life_events {
             use LifeEventType::*;
@@ -605,7 +611,7 @@ impl Character {
                     death = Some((date, loc));
                 }
                 Posthumous => {
-                    if death.is_none() {
+                    if death.is_none() && !death_dates.contains(&date) {
                         let msg = format!("{character} had not died yet on {date}");
                         warn(ErrorKey::History).msg(msg).loc(token).push();
                     }

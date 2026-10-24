@@ -1486,7 +1486,7 @@ impl Item {
             #[cfg(feature = "ck3")]
             Item::HolyOrderType => "common/holy_orders/",
             #[cfg(feature = "ck3")]
-            Item::HolySiteParameter => "common/religion/holy_sites/",
+            Item::HolySiteParameter => "common/religion/holy_site_types/",
             #[cfg(feature = "ck3")]
             Item::Hook => "common/hook_types/",
             #[cfg(feature = "ck3")]

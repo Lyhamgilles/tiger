@@ -130,7 +130,7 @@ fn validate_doctrines(data: &Everything, vd: &mut Validator) {
         doctrines.push(vd.value().clone());
     });
     validate_doctrine_groups(&doctrines, data);
-    vd.advice_field("doctrine_selection_pair", "removed in 1.20");
+    vd.replaced_field("doctrine_selection_pair", "`tenet_selection_pair` in faiths and rites");
 }
 
 const TENET_BACKGROUND_ICONS: &[&str] = &[
@@ -309,7 +309,7 @@ impl DbKind for Faith {
             validate_doctrine_groups(&doctrines, data);
         }
         vd.replaced_field("doctrine", "`doctrines`");
-        vd.advice_field("doctrine_selection_pair", "removed in 1.20");
+        vd.replaced_field("doctrine_selection_pair", "`tenet_selection_pair`");
         vd.multi_field_validated_block("tenet_selection_pair", validate_tenet_selection_pair);
 
         vd.field_list("reserved_male_names");
