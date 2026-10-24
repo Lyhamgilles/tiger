@@ -4,6 +4,7 @@ use crate::everything::Everything;
 use crate::game::GameFlags;
 use crate::item::{Item, ItemLoader};
 use crate::token::Token;
+use crate::validate::validate_color;
 use crate::validator::Validator;
 
 #[derive(Clone, Debug)]
@@ -27,7 +28,10 @@ impl DbKind for Dynasty {
         vd.field_item("name", Item::Localization);
         vd.field_item("prefix", Item::Localization);
         vd.field_item("motto", Item::Localization);
+        vd.req_field_warn("culture");
         vd.field_item("culture", Item::Culture);
-        vd.field_value("forced_coa_religiongroup"); // TODO: figure out the values
+        // The docs say these two are read but not used by the game
+        vd.field_value("forced_coa_religiongroup");
+        vd.field_validated_block("color", validate_color);
     }
 }
