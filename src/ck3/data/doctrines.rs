@@ -68,7 +68,8 @@ impl DbKind for DoctrineGroup {
         let loca = format!("{key}_name");
         data.verify_exists_implied(Item::Localization, &loca, key);
 
-        data.verify_icon("NGameIcons|DOCTRINE_GROUP_TYPE_ICON_PATH", key, ".dds");
+        // Optional: the icon of a doctrine that has none, which the doctrine checks
+        data.mark_used_icon("NGameIcons|DOCTRINE_GROUP_TYPE_ICON_PATH", key, ".dds");
 
         vd.field_item("category", Item::DoctrineCategory);
         vd.field_bool("main_rite");
@@ -121,8 +122,16 @@ impl DbKind for Doctrine {
         let mut rite_sc = ScopeContext::new(Scopes::Rite, key);
         rite_sc.define_list("selected_doctrines", selected, key);
 
-        let icon = vd.field_value("icon").unwrap_or(key);
-        data.verify_icon("NGameIcons|DOCTRINE_TYPE_ICON_PATH", icon, ".dds");
+        let icon = vd.field_value("icon");
+        // Without an icon file of its own, a doctrine shows its group's icon
+        let uses_group_icon = icon.is_none()
+            && !icon_exists("NGameIcons|DOCTRINE_TYPE_ICON_PATH", key, data)
+            && block.get_field_value("doctrine_group_type").is_some_and(|group| {
+                icon_exists("NGameIcons|DOCTRINE_GROUP_TYPE_ICON_PATH", group, data)
+            });
+        if !uses_group_icon {
+            data.verify_icon("NGameIcons|DOCTRINE_TYPE_ICON_PATH", icon.unwrap_or(key), ".dds");
+        }
 
         if !vd.field_validated_sc("name", &mut sc, validate_desc) {
             let loca = format!("{key}_name");
@@ -167,6 +176,11 @@ impl DbKind for Doctrine {
         vd.field_validated_block("traits", validate_traits);
         vd.field_validated_block("special_parameters", validate_special_parameters);
     }
+}
+
+fn icon_exists(define: &str, name: &Token, data: &Everything) -> bool {
+    data.get_defined_string(define)
+        .is_some_and(|path| data.item_exists(Item::File, &format!("{path}/{name}.dds")))
 }
 
 fn validate_parameters(block: &Block, data: &Everything) {
