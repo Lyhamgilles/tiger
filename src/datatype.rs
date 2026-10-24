@@ -162,6 +162,12 @@ fn validate_argument(
                                 let msg = format!("expected {expect_type}, got {dtype}");
                                 warn(ErrorKey::Datafunctions).msg(msg).loc(token).push();
                             }
+                        } else if Game::is_ck3() && dtype == "int_bool" {
+                            // A base type in the binary; vanilla uses it to cast an int to bool
+                            if expect_type != Datatype::Unknown && expect_type != Datatype::bool {
+                                let msg = format!("expected {expect_type}, got {dtype}");
+                                warn(ErrorKey::Datafunctions).msg(msg).loc(token).push();
+                            }
                         } else if let Ok(dtype) = Datatype::from_str(dtype) {
                             if expect_type != Datatype::Unknown && expect_type != dtype {
                                 let msg = format!("expected {expect_type}, got {dtype}");
