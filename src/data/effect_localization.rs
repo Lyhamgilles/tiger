@@ -65,10 +65,14 @@ impl EffectLocalization {
 impl DbKind for EffectLocalization {
     fn validate(&self, _key: &Token, block: &Block, data: &Everything) {
         let mut vd = Validator::new(block, data);
-        #[cfg(feature = "eu5")]
+        #[cfg(any(feature = "ck3", feature = "eu5"))]
         vd.field_item("none", Item::Localization);
-        #[cfg(feature = "eu5")]
+        #[cfg(any(feature = "ck3", feature = "eu5"))]
         vd.field_item("none_past", Item::Localization);
+        #[cfg(feature = "ck3")]
+        vd.field_item("none_neg", Item::Localization);
+        #[cfg(feature = "ck3")]
+        vd.field_item("none_past_neg", Item::Localization);
         vd.field_item("global", Item::Localization);
         vd.field_item("global_past", Item::Localization);
         vd.field_item("global_neg", Item::Localization);

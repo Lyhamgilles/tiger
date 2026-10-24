@@ -144,7 +144,7 @@ impl DbKind for TutorialLessonStep {
         data.verify_exists(Item::Localization, key);
 
         vd.field_item("text", Item::Localization);
-        vd.field_item("header_info", Item::Localization); // undocumented
+        vd.field_item("header_info", Item::Localization);
 
         // see gui_tag in TutorialLesson
         vd.multi_field_value("gui_tag");

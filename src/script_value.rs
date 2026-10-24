@@ -7,6 +7,7 @@
 use crate::block::{BV, Block, BlockItem, Comparator, Eq::*};
 use crate::context::{Reason, ScopeContext, Temporary};
 use crate::everything::Everything;
+use crate::game::Game;
 use crate::helpers::TriBool;
 use crate::item::Item;
 use crate::lowercase::Lowercase;
@@ -84,6 +85,7 @@ fn validate_inner(
             || token.is("divide")
             || token.is("modulo")
             || token.is("round_to")
+            || (Game::is_ck3() && token.is("pow"))
         {
             if have_value == TriBool::False {
                 let msg = format!("nothing to {token} yet");

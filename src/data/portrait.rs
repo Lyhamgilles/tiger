@@ -47,6 +47,10 @@ impl DbKind for PortraitModifierGroup {
         sc.define_name("weight_for_portrait", Scopes::Value, key);
         sc.define_name("year_of_birth", Scopes::Value, key);
 
+        #[cfg(feature = "ck3")]
+        if Game::is_ck3() {
+            vd.field_item("portrait_group", Item::PortraitType);
+        }
         vd.field_choice("usage", &["customization", "game", "both", "none"]);
         vd.field_integer("interface_position");
         vd.field_integer("priority");
@@ -240,6 +244,7 @@ fn validate_animation(block: &Block, data: &Everything) {
 
     if Game::is_ck3() {
         vd.field_bool("force");
+        vd.field_item("portrait_modifier_pack", Item::PortraitModifierPack);
     }
 
     vd.multi_field_validated_block("portrait_modifier", |block, data| {
@@ -247,6 +252,9 @@ fn validate_animation(block: &Block, data: &Everything) {
         vd.field_trigger_rooted("trigger", Tooltipped::No, Scopes::Character);
         validate_portrait_modifiers(block, data, vd);
     });
+    if Game::is_ck3() {
+        vd.multi_field_validated_block("portrait_modifier_set", validate_portrait_modifier_set);
+    }
 
     vd.unknown_block_fields(|_, block| {
         let mut vd = Validator::new(block, data);
@@ -274,7 +282,21 @@ fn validate_animation(block: &Block, data: &Everything) {
             validate_portrait_modifiers(block, data, vd);
         });
         vd.field_item("portrait_modifier_pack", Item::PortraitModifierPack);
+        if Game::is_ck3() {
+            vd.multi_field_validated_block("portrait_modifier_set", validate_portrait_modifier_set);
+        }
     });
+}
+
+/// A set of portrait modifiers, of which the first valid one is applied
+fn validate_portrait_modifier_set(block: &Block, data: &Everything) {
+    let mut vd = Validator::new(block, data);
+    vd.multi_field_validated_block("portrait_modifier", |block, data| {
+        let mut vd = Validator::new(block, data);
+        vd.field_trigger_rooted("trigger", Tooltipped::No, Scopes::Character);
+        validate_portrait_modifiers(block, data, vd);
+    });
+    vd.multi_field_item("portrait_modifier_pack", Item::PortraitModifierPack);
 }
 
 #[derive(Clone, Debug)]

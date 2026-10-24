@@ -352,6 +352,16 @@ fn validate_on_action_internal(
         });
         // TODO: check for infinite fallback loops?
         vd.field_action("fallback", sc);
+        #[cfg(feature = "ck3")]
+        if Game::is_ck3()
+            && let Some(token) = vd.field_value("fallback_event")
+        {
+            data.verify_exists(Item::Event, token);
+            data.event_check_scope(token, sc);
+            if let Some(mut event_sc) = sc.root_for_event(token, data) {
+                data.event_validate_call(token, &mut event_sc);
+            }
+        }
     }
 }
 

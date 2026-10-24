@@ -147,6 +147,7 @@ impl Music {
             vd.field_bool("trigger_prio_override");
             vd.field_trigger("is_valid", Tooltipped::No, &mut sc);
 
+            // TODO: verify the count. The CK3 docs show `{ 1.0 0.5 ... }`.
             vd.field_list_numeric_exactly("subsequent_playback_chance", 3);
         }
     }

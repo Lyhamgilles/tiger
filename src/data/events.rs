@@ -44,6 +44,16 @@ impl Events {
                         dup_error(&other.key, &key, "event");
                     }
                     return;
+                } else if Game::is_ck3() {
+                    // Definitions with a different `id_override_priority` override each other
+                    let priority = |block: &Block| {
+                        block.get_field_integer("id_override_priority").unwrap_or(0)
+                    };
+                    match priority(&block).cmp(&priority(&other.block)) {
+                        std::cmp::Ordering::Less => return,
+                        std::cmp::Ordering::Equal => dup_error(&key, &other.key, "event"),
+                        std::cmp::Ordering::Greater => (),
+                    }
                 } else {
                     // In the other games, overriding events is always an error.
                     dup_error(&key, &other.key, "event");
