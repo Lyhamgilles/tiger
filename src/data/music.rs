@@ -147,8 +147,14 @@ impl Music {
             vd.field_bool("trigger_prio_override");
             vd.field_trigger("is_valid", Tooltipped::No, &mut sc);
 
-            // TODO: verify the count. The CK3 docs show `{ 1.0 0.5 ... }`.
-            vd.field_list_numeric_exactly("subsequent_playback_chance", 3);
+            if Game::is_ck3() {
+                // The docs give one chance per subsequent track, and vanilla uses 2 to 4
+                vd.field_validated_list("subsequent_playback_chance", |token, _| {
+                    token.expect_number();
+                });
+            } else {
+                vd.field_list_numeric_exactly("subsequent_playback_chance", 3);
+            }
         }
     }
 }

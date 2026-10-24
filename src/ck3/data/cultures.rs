@@ -40,7 +40,7 @@ impl DbKind for CultureEra {
         let loca = format!("{key}_desc");
         data.verify_exists_implied(Item::Localization, &loca, key);
 
-        vd.field_item("invalid_for_government", Item::GovernmentType);
+        vd.multi_field_item("invalid_for_government", Item::GovernmentType);
         vd.multi_field_item("custom", Item::Localization);
 
         validate_modifiers(&mut vd);

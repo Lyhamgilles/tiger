@@ -78,7 +78,10 @@ impl DbKind for Bookmark {
 
         let start_date = block.get_field_date("start_date").or(group_start_date);
         vd.multi_field_validated_block("character", |block, data| {
-            if let Some(name) = block.get_field_value("name") {
+            // The docs say the location image is not required with `display = no`
+            if let Some(name) = block.get_field_value("name")
+                && !block.field_value_is("display", "no")
+            {
                 let pathname = format!("gfx/interface/bookmarks/{key}_{name}.dds");
                 data.verify_exists_implied(Item::File, &pathname, name);
             }

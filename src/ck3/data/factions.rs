@@ -48,7 +48,7 @@ impl DbKind for Faction {
 
         vd.field_effect_rooted("demand", Tooltipped::No, Scopes::Faction);
         vd.field_effect_rooted("update_effect", Tooltipped::No, Scopes::Faction);
-        // docs say "on_declaration"
+        vd.field_effect_rooted("on_declaration", Tooltipped::No, Scopes::Faction);
         vd.field_effect_rooted("on_war_start", Tooltipped::No, Scopes::Faction);
         vd.field_effect_builder("character_leaves", Tooltipped::No, |key| {
             let mut sc = ScopeContext::new(Scopes::Faction, key);
