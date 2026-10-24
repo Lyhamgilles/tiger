@@ -89,7 +89,8 @@ impl DbKind for Tenet {
         vd.field_validated_block("parameters", |block, data| {
             let mut vd = Validator::new(block, data);
             vd.values();
-            vd.unknown_value_fields(validate_parameter_value); // undocumented
+            // TODO: verify. Vanilla uses `name = yes` only in doctrine parameters.
+            vd.unknown_value_fields(validate_parameter_value);
         });
         vd.field_script_value("piety_cost", &mut rite_sc);
         vd.field_trigger("is_shown", Tooltipped::No, &mut faith_sc);
