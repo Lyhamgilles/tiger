@@ -634,7 +634,7 @@ const TRIGGER: &[(Scopes, &str, Trigger)] = &[
     ),
     (Scopes::GreatProject, "great_project_days_to_completion", CompareValue),
     // There's a trigger that takes an Item and an event target of the same name that returns a Scope.
-    // Handle the name collistion by deleting the event target and making the trigger accept both.
+    // The trigger takes precedence when the name is not part of a chain, so it accepts both.
     (
         Scopes::GreatProject,
         "great_project_type",

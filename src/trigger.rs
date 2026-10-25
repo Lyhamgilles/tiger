@@ -492,14 +492,20 @@ pub fn validate_trigger_key_bv(
                     data.script_values.validate_call(part, data, sc);
                     sc.replace(Scopes::Value, part.clone());
                 } else if let Some((inscopes, outscope)) = scope_to_scope(part, sc.scopes(data)) {
-                    #[cfg(feature = "imperator")]
+                    #[cfg(any(feature = "ck3", feature = "imperator"))]
                     if let Some((inscopes, trigger)) = scope_trigger(part, data) {
                         // If a trigger of the same name exists, and it's compatible with this
                         // location and scope context, then that trigger takes precedence.
-                        if part_flags.contains(PartFlags::Last)
-                            && (inscopes.contains(Scopes::None)
-                                || sc.scopes(data).intersects(inscopes))
-                        {
+                        // In CK3 (only `great_project_type`), that's only the bare name; in a
+                        // chain, it's the link.
+                        let precedence = if Game::is_ck3() {
+                            part_flags.contains(PartFlags::First | PartFlags::Last)
+                        } else {
+                            part_flags.contains(PartFlags::Last)
+                                && (inscopes.contains(Scopes::None)
+                                    || sc.scopes(data).intersects(inscopes))
+                        };
+                        if precedence {
                             validate_inscopes(part_flags, part, inscopes, sc, data);
                             sc.close();
                             side_effects |= match_trigger_bv(
