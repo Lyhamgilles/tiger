@@ -1,4 +1,4 @@
-use crate::block::{BV, Block};
+use crate::block::{BV, Block, Field};
 use crate::ck3::validate::validate_cost;
 use crate::context::ScopeContext;
 use crate::db::{Db, DbKind};
@@ -6,7 +6,7 @@ use crate::desc::validate_desc;
 use crate::everything::Everything;
 use crate::game::GameFlags;
 use crate::item::{Item, ItemLoader};
-use crate::report::{ErrorKey, err, warn};
+use crate::report::{ErrorKey, err, fatal, warn};
 use crate::scopes::Scopes;
 use crate::token::Token;
 use crate::tooltipped::Tooltipped;
@@ -146,7 +146,22 @@ impl DbKind for Decision {
         vd.field_trigger("ai_potential", Tooltipped::No, &mut sc);
         vd.field_validated_block_sc("ai_will_do", &mut sc, validate_modifiers_with_base);
         vd.field_trigger("should_create_alert", Tooltipped::No, &mut sc);
-        vd.field_validated_key("widget", |key, bv, data| {
+        // The docs allow "up to one custom widget"; a second one crashes the game (seen in 1.20)
+        let mut widgets = block.iter_fields().filter(|Field(key, _, _)| key.is("widget"));
+        if let Some(Field(first, _, _)) = widgets.next() {
+            for Field(other, _, _) in widgets {
+                let msg = "a decision can have only one widget";
+                let info = "a second widget crashes the game";
+                fatal(ErrorKey::Crash)
+                    .strong()
+                    .msg(msg)
+                    .info(info)
+                    .loc(other)
+                    .loc_msg(first, "the first one")
+                    .push();
+            }
+        }
+        vd.multi_field_validated_key("widget", |key, bv, data| {
             match bv {
                 BV::Value(value) => {
                     let mut vvd = ValueValidator::new(value, data);
