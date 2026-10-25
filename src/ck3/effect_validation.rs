@@ -435,7 +435,6 @@ pub fn validate_change_struggle_phase(
             let mut vd = Validator::new(block, data);
             vd.set_case_sensitive(false);
             vd.req_field("struggle_phase");
-            vd.req_field("with_transition");
             vd.field_item("struggle_phase", Item::StrugglePhase);
             vd.field_bool("with_transition");
         }
