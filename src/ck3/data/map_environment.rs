@@ -61,7 +61,8 @@ impl DbKind for MapEnvironment {
         vd.field_precise_numeric("fog_end");
         vd.field_precise_numeric("fog_max");
 
-        vd.field_validated_block("relative_fog_color", validate_camera_color);
+        // A color adjustment, not a color: the docs' example has a negative value
+        vd.field_list_precise_numeric_exactly("relative_fog_color", 3);
         vd.field_precise_numeric("relative_fog_begin");
         vd.field_precise_numeric("relative_fog_end");
         vd.field_precise_numeric("relative_fog_height_begin");

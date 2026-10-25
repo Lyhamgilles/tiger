@@ -204,6 +204,10 @@ pub fn validate_color(block: &Block, _data: &Everything) {
     let mut count = 0;
     // Get the color tag, as in color = hsv { 0.5 1.0 1.0 }
     let tag = block.tag.as_deref().map_or("rgb", Token::as_str);
+    if tag == "hex" {
+        validate_hex_color(block);
+        return;
+    }
     for item in block.iter_items() {
         if let Some(t) = item.get_value() {
             if tag == "hsv" {
@@ -253,6 +257,21 @@ pub fn validate_color(block: &Block, _data: &Everything) {
     }
     if count != 3 && count != 4 {
         warn(ErrorKey::Colors).msg("expected 3 or 4 color values").loc(block).push();
+    }
+}
+
+/// A `hex { rrggbb }` color
+fn validate_hex_color(block: &Block) {
+    let mut values = block.iter_items().filter_map(|item| item.get_value());
+    if let Some(t) = values.next()
+        && values.next().is_none()
+    {
+        let s = t.as_str();
+        if s.len() != 6 || !s.chars().all(|c| c.is_ascii_hexdigit()) {
+            warn(ErrorKey::Colors).msg("expected 6 hex digits").loc(t).push();
+        }
+    } else {
+        warn(ErrorKey::Colors).msg("expected one hex value").loc(block).push();
     }
 }
 
@@ -1143,6 +1162,10 @@ pub fn validate_camera_color(block: &Block, data: &Everything) {
     let mut count = 0;
     // Get the color tag, as in color = hsv { 0.5 1.0 1.0 }
     let tag = block.tag.as_deref().map_or("rgb", Token::as_str);
+    if tag == "hex" {
+        validate_hex_color(block);
+        return;
+    }
     if tag != "hsv" {
         let msg = "camera colors should be in hsv";
         warn(ErrorKey::Colors).msg(msg).loc(block).push();
