@@ -116,7 +116,6 @@ impl ProvinceHistory {
 
     fn validate_common(vd: &mut Validator, data: &Everything) {
         vd.field_item("culture", Item::Culture);
-        vd.field_item("religion", Item::Faith);
         vd.field_item("faith", Item::Faith);
         // takes priority over faith
         vd.field_item("rite", Item::RiteType);

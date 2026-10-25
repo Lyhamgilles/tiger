@@ -33,7 +33,6 @@ impl DbKind for ImportantAction {
         data.verify_exists_implied(Item::Localization, &loca, key);
         let loca = format!("{key}_click");
         data.verify_exists_implied(Item::Localization, &loca, key);
-        // TODO: verify that it's needed. The docs list it; 3 vanilla actions lack it.
         if block.has_key("unimportant") {
             let loca = format!("{key}_unimportant");
             data.verify_exists_implied(Item::Localization, &loca, key);

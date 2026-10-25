@@ -389,7 +389,8 @@ pub const ON_ACTION_SCOPES: &str = "
 	on_artifact_broken_through_effect = on_artifact_broken_through_decay
 	on_artifact_durability_very_low = on_artifact_broken_through_decay
 	on_artifact_durability_low = {
-		root = character # TODO: verify the doc
+		root = character
+		artifact = artifact
 	}
 	on_artifact_claim_gained = {
 		root = character
@@ -472,12 +473,11 @@ pub const ON_ACTION_SCOPES: &str = "
 		root = character
 		old_faith = faith
 		old_rite = rite
-		new_rite = rite # TODO: verify scope type
 	}
 	on_rite_updated = {
 		root = rite
-		changed_tenets_or_doctrines = bool # TODO: verify scope type
-		consume_rite_edit_token = bool # TODO: verify scope type
+		changed_tenets_or_doctrines = bool
+		consume_rite_edit_token = bool
 		list = { added_tenets = tenet }
 		list = { removed_tenets = tenet }
 		list = { added_doctrines = doctrine }
