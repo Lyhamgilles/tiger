@@ -696,6 +696,18 @@ pub fn validate_datatypes(
                 {
                     continue;
                 }
+                // A faith's Custom also takes a custom localization of type faith
+                #[cfg(feature = "ck3")]
+                if Game::is_ck3()
+                    && curtype == Datatype::Ck3(Ck3Datatype::Faith)
+                    && code.name.is("Custom")
+                    && let CodeArg::Literal(token) = &code.arguments[i]
+                    && !CUSTOM_RELIGION_LOCAS.contains(&token.as_str())
+                    && data.item_exists(Item::CustomLocalization, token.as_str())
+                {
+                    validate_custom(token, data, Scopes::Faith, lang);
+                    continue;
+                }
                 validate_argument(&code.arguments[i], data, sc, dc, *arg, lang, format);
             }
         }
