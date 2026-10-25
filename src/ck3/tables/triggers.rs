@@ -2720,7 +2720,7 @@ const TRIGGER_COMPLEX: &[(Scopes, &str, ArgumentValue, Scopes)] = {
         (
             Scopes::Character,
             "vassal_contract_obligation_level_score",
-            ScopeOrItem(Scopes::VassalObligationLevel, Item::SubjectContract),
+            ScopeOrItem(Scopes::VassalContract, Item::SubjectContract),
             Scopes::Value,
         ),
         // (Scopes::LandedTitle, "title_create_faction_type_chance", Item(Item::Faction), Scope(Scopes::Character), Scopes::Value),
@@ -2728,7 +2728,7 @@ const TRIGGER_COMPLEX: &[(Scopes, &str, ArgumentValue, Scopes)] = {
         (
             Scopes::LandedTitle.union(Scopes::Province),
             "squared_distance",
-            Scope(Scopes::Province),
+            Scope(Scopes::LandedTitle.union(Scopes::Province)),
             Scopes::Value,
         ),
         (Scopes::War, "war_contribution", Scope(Scopes::Character), Scopes::Value),
